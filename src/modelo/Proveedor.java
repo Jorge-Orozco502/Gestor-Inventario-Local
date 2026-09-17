@@ -2,45 +2,46 @@ package modelo;
 
 public class Proveedor {
     //Atributos
-    private String codigoProveedor;
-    private String nombreProveedor;
-    private String nitProveedor;
+    private String codigo;
+    private String nombreEmpresa;
+    private String nit;
     private String telefono;
     private String direccion;
     private String correoElectronico;
 
     //Constructor
-    public Proveedor(String codigoProveedor, String nombreProveedor, String nitProveedor, String telefono, String direccion, String correoElectronico) {
-        this.codigoProveedor = codigoProveedor;
-        this.nombreProveedor = nombreProveedor;
-        this.nitProveedor = nitProveedor;
+    public Proveedor(String codigo, String nombreEmpresa, String nit, String telefono, String direccion, String correoElectronico) {
+        this.codigo = codigo;
+        this.nombreEmpresa = nombreEmpresa;
+        this.nit = nit;
         this.telefono = telefono;
         this.direccion = direccion;
         this.correoElectronico = correoElectronico;
     }
+
     //Get y Set
-    public String getCodigoProveedor() {
-        return codigoProveedor;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setCodigoProveedor(String codigoProveedor) {
-        this.codigoProveedor = codigoProveedor;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
-    public String getNombreProveedor() {
-        return nombreProveedor;
+    public String getNombreEmpresa() {
+        return nombreEmpresa;
     }
 
-    public void setNombreProveedor(String nombreProveedor) {
-        this.nombreProveedor = nombreProveedor;
+    public void setNombreEmpresa(String nombreEmpresa) {
+        this.nombreEmpresa = nombreEmpresa;
     }
 
-    public String getNitProveedor() {
-        return nitProveedor;
+    public String getNit() {
+        return nit;
     }
 
-    public void setNitProveedor(String nitProveedor) {
-        this.nitProveedor = nitProveedor;
+    public void setNit(String nit) {
+        this.nit = nit;
     }
 
     public String getTelefono() {
@@ -66,9 +67,6 @@ public class Proveedor {
     public void setCorreoElectronico(String correoElectronico) {
         this.correoElectronico = correoElectronico;
     }
-
-
-
 
 
     //===========================================

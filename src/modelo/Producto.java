@@ -1,25 +1,27 @@
 
 package modelo;
 
+import java.math.BigDecimal;
 
 public class Producto {
     //Atributos
-    private double codigoProducto; //ver cuantos digitos
+    private double codigo; //ver cuantos digitos
     private String nombre;
     private String categoria;
     private String descripcion;
     private String unidadMedida;
-    private double precioCompra;
-    private double precioVenta;
-    private int existenciaActual;
-    private int existenciaMinima;
+    private BigDecimal precioCompra;
+    private BigDecimal precioVenta;
+    private double existenciaActual;
+    private double existenciaMinima;
     private EstadoProducto estadoProducto;
 
    
   //Constructor
 
-    public Producto(double codigoProducto, String nombre, String categoria, String descripcion, String unidadMedida, double precioCompra, double precioVenta, int existenciaActual, int existenciaMinima, EstadoProducto estadoProducto) {
-        this.codigoProducto = codigoProducto;
+
+    public Producto(double codigo, String nombre, String categoria, String descripcion, String unidadMedida, BigDecimal precioCompra, BigDecimal precioVenta, double existenciaActual, double existenciaMinima, EstadoProducto estadoProducto) {
+        this.codigo = codigo;
         this.nombre = nombre;
         this.categoria = categoria;
         this.descripcion = descripcion;
@@ -32,12 +34,12 @@ public class Producto {
     }
 
     //Get y Set
-    public double getCodigoProducto() {
-        return codigoProducto;
+    public double getCodigo() {
+        return codigo;
     }
 
-    public void setCodigoProducto(double codigoProducto) {
-        this.codigoProducto = codigoProducto;
+    public void setCodigo(double codigo) {
+        this.codigo = codigo;
     }
 
     public String getNombre() {
@@ -72,35 +74,35 @@ public class Producto {
         this.unidadMedida = unidadMedida;
     }
 
-    public double getPrecioCompra() {
+    public BigDecimal getPrecioCompra() {
         return precioCompra;
     }
 
-    public void setPrecioCompra(double precioCompra) {
+    public void setPrecioCompra(BigDecimal precioCompra) {
         this.precioCompra = precioCompra;
     }
 
-    public double getPrecioVenta() {
+    public BigDecimal getPrecioVenta() {
         return precioVenta;
     }
 
-    public void setPrecioVenta(double precioVenta) {
+    public void setPrecioVenta(BigDecimal precioVenta) {
         this.precioVenta = precioVenta;
     }
 
-    public int getExistenciaActual() {
+    public double getExistenciaActual() {
         return existenciaActual;
     }
 
-    public void setExistenciaActual(int existenciaActual) {
+    public void setExistenciaActual(double existenciaActual) {
         this.existenciaActual = existenciaActual;
     }
 
-    public int getExistenciaMinima() {
+    public double getExistenciaMinima() {
         return existenciaMinima;
     }
 
-    public void setExistenciaMinima(int existenciaMinima) {
+    public void setExistenciaMinima(double existenciaMinima) {
         this.existenciaMinima = existenciaMinima;
     }
 
@@ -112,15 +114,13 @@ public class Producto {
         this.estadoProducto = estadoProducto;
     }
 
+    //=========================================================================
     //Metodo Calcular el valor del inventario
-    public double valorInventario(){
-        double valorInventario = (precioCompra * existenciaActual);
-        return valorInventario;
+    public BigDecimal calcularValorInventario(){
+        BigDecimal existencia = BigDecimal.valueOf(existenciaActual);
+
+        return existencia.multiply(precioCompra);
     }
 
 
-
-
-
-    //======
 }

@@ -3,60 +3,52 @@ package modelo;
 
 public class Cliente {
     //Atributos
-    private int idCliente; //analizar esto y verlo
+    private String codigoCliente; //analizar esto y verlo
     private String nombreCliente;
     private String telefono; 
-    private String nit;
+    private String nitCF;
     
     //Constructor
-
-    public Cliente(int idCliente, String nombreCliente, String telefono, String nit) {
-        this.idCliente = idCliente;
+    public Cliente(String codigoCliente, String nombreCliente, String telefono, String nitCF) {
+        this.codigoCliente = codigoCliente;
         this.nombreCliente = nombreCliente;
         this.telefono = telefono;
-        this.nit = nit;
+        this.nitCF = nitCF;
     }
-    
-    //Métodos Get (lectura) 
 
-    public int getIdCliente() {
-        return idCliente;
+    //Get y Set
+    public String getCodigoCliente() {
+        return codigoCliente;
+    }
+
+    public void setCodigoCliente(String codigoCliente) {
+        this.codigoCliente = codigoCliente;
     }
 
     public String getNombreCliente() {
         return nombreCliente;
     }
 
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getNit() {
-        return nit;
-    }
-    
-    //Metodos Set (escritura) 
-
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
-    }
-
     public void setNombreCliente(String nombreCliente) {
         this.nombreCliente = nombreCliente;
+    }
+
+    public String getTelefono() {
+        return telefono;
     }
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
-    public void setNit(String nit) {
-        this.nit = nit;
+    public String getNitCF() {
+        return nitCF;
     }
-    
-    
-    
-    
-    
-    
-    
+
+    public void setNitCF(String nitCF) {
+        this.nitCF = nitCF;
+    }
+
+
+
 }

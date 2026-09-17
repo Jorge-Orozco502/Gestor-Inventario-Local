@@ -1,40 +1,32 @@
 package modelo;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
+
 
 public class Compra {
     //Atributos
-    private int numeroCompra;
-    private String nitProveedor;
+    private String numeroCompra;
     private LocalDate fechaCompra;
-    private String nombreProveedor;
-    private double totalCompra;
-    private String formaPago;
+    private FormaPago formaPago;
+    private BigDecimal total;
 
     //Constructor
-    public Compra(int numeroCompra, String nitProveedor, LocalDate fechaCompra, String nombreProveedor, double totalCompra, String formaPago) {
+
+    public Compra(String numeroCompra, LocalDate fechaCompra, FormaPago formaPago, BigDecimal total) {
         this.numeroCompra = numeroCompra;
-        this.nitProveedor = nitProveedor;
         this.fechaCompra = fechaCompra;
-        this.nombreProveedor = nombreProveedor;
-        this.totalCompra = totalCompra;
         this.formaPago = formaPago;
+        this.total = total;
     }
+
     //Get y Set
-    public int getNumeroCompra() {
+    public String getNumeroCompra() {
         return numeroCompra;
     }
 
-    public void setNumeroCompra(int numeroCompra) {
+    public void setNumeroCompra(String numeroCompra) {
         this.numeroCompra = numeroCompra;
-    }
-
-    public String getNitProveedor() {
-        return nitProveedor;
-    }
-
-    public void setNitProveedor(String nitProveedor) {
-        this.nitProveedor = nitProveedor;
     }
 
     public LocalDate getFechaCompra() {
@@ -45,34 +37,21 @@ public class Compra {
         this.fechaCompra = fechaCompra;
     }
 
-    public String getNombreProveedor() {
-        return nombreProveedor;
-    }
-
-    public void setNombreProveedor(String nombreProveedor) {
-        this.nombreProveedor = nombreProveedor;
-    }
-
-    public double getTotalCompra() {
-        return totalCompra;
-    }
-
-    public void setTotalCompra(double totalCompra) {
-        this.totalCompra = totalCompra;
-    }
-
-    public String getFormaPago() {
+    public FormaPago getFormaPago() {
         return formaPago;
     }
 
-    public void setFormaPago(String formaPago) {
+    public void setFormaPago(FormaPago formaPago) {
         this.formaPago = formaPago;
     }
 
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
 
 
-
-
-
-    //=============
 }
