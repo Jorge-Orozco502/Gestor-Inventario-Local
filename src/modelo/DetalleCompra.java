@@ -9,12 +9,34 @@ public class DetalleCompra {
     private double subtotal;
 
     //Constructor
-
-
     public DetalleCompra(Producto producto, double cantidadComprada, double costoUnitario) {
         this.cantidadComprada = cantidadComprada;
         this.costoUnitario = costoUnitario;
         this.producto = producto;
+    }
+    //Get y Set
+    public double getCantidadComprada() {
+        return cantidadComprada;
+    }
+
+    public void setCantidadComprada(double cantidadComprada) {
+        this.cantidadComprada = cantidadComprada;
+    }
+
+    public double getCostoUnitario() {
+        return costoUnitario;
+    }
+
+    public void setCostoUnitario(double costoUnitario) {
+        this.costoUnitario = costoUnitario;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
     }
 
     //===============================
@@ -25,10 +47,6 @@ public class DetalleCompra {
         System.out.println("Subtotal:"+subtotal);
         return subtotal = (costoUnitario * cantidadComprada);
     }
-
-
-
-
 
 
 
