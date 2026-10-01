@@ -5,15 +5,26 @@ import java.math.BigDecimal;
 public class DetalleCompra {
     //Atributos
     private double cantidadComprada;
-    private double costoUnitario;
-    private double subtotal;
+    private BigDecimal costoUnitario;
+    private BigDecimal subtotal;
+    private Producto producto;
 
     //Constructor
-    public DetalleCompra(Producto producto, double cantidadComprada, double costoUnitario) {
+    public DetalleCompra(double cantidadComprada, BigDecimal costoUnitario, BigDecimal subtotal, Producto producto) {
         this.cantidadComprada = cantidadComprada;
         this.costoUnitario = costoUnitario;
+        this.subtotal = subtotal;
         this.producto = producto;
     }
+
+    //Constructor vacio
+    public DetalleCompra(){
+        this.costoUnitario = BigDecimal.ZERO;
+        this.subtotal = BigDecimal.ZERO;
+    }
+
+
+
     //Get y Set
     public double getCantidadComprada() {
         return cantidadComprada;
@@ -21,31 +32,47 @@ public class DetalleCompra {
 
     public void setCantidadComprada(double cantidadComprada) {
         this.cantidadComprada = cantidadComprada;
+        calcularSubtotal();
     }
 
-    public double getCostoUnitario() {
+    public BigDecimal getCostoUnitario() {
         return costoUnitario;
     }
 
-    public void setCostoUnitario(double costoUnitario) {
+    public void setCostoUnitario(BigDecimal costoUnitario) {
         this.costoUnitario = costoUnitario;
+        calcularSubtotal();
     }
 
-    public double getSubtotal() {
+    public BigDecimal getSubtotal() {
+        if (subtotal == null){
+            calcularSubtotal();
+        }
         return subtotal;
     }
 
-    public void setSubtotal(double subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
-    //===============================
-    //==METODOS==
+    public Producto getProducto(){
+        this.producto = producto;
+    }
 
-    //Para calcular el subtotal
+    public Producto setProducto(Producto producto){
+        return producto;
+    }
+
+    //===============================
+
+    //Metodo para calcular el subtotal
     public BigDecimal calcularSubtotal(){
-        System.out.println("Subtotal:"+subtotal);
-        return subtotal = (costoUnitario * cantidadComprada);
+        if (this.costoUnitario != null && this.cantidadComprada > 0){
+            this.subtotal = this.costoUnitario.multiply(new BigDecimal(this.cantidadComprada));
+        } else {
+            this.subtotal = BigDecimal.ZERO;
+        }
+        return this.subtotal;
     }
 
 
