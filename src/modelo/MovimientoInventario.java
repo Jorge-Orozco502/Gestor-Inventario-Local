@@ -1,20 +1,21 @@
 package modelo;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class MovimientoInventario {
     //Atributos
     private int idMovimiento;
-    private LocalDate fecha;
+    private LocalDateTime fecha;
     private TipoMovimiento tipoMovimiento;
     private double cantidad;
-    private doube existenciaAnterior;
+    private double existenciaAnterior;
     private double existenciaNueva;
     private String referenciaDocumento;
     private String motivo;
+    private Usuario usuarioResponsable;
 
     //Constructor
-    public MovimientoInventario(int idMovimiento, LocalDate fecha, TipoMovimiento tipoMovimiento, double cantidad, doube existenciaAnterior, double existenciaNueva, String referenciaDocumento, String motivo) {
+    public MovimientoInventario(int idMovimiento, LocalDateTime fecha, TipoMovimiento tipoMovimiento, double cantidad, double existenciaAnterior, double existenciaNueva, String referenciaDocumento, String motivo, Usuario usuarioResponsable) {
         this.idMovimiento = idMovimiento;
         this.fecha = fecha;
         this.tipoMovimiento = tipoMovimiento;
@@ -23,6 +24,12 @@ public class MovimientoInventario {
         this.existenciaNueva = existenciaNueva;
         this.referenciaDocumento = referenciaDocumento;
         this.motivo = motivo;
+        this.usuarioResponsable = usuarioResponsable;
+    }
+
+    //Constructor asignando fecha y hora actual por defecto
+    public MovimientoInventario(){
+        this.fecha = LocalDateTime.now();
     }
 
     //Get y Set
@@ -34,11 +41,11 @@ public class MovimientoInventario {
         this.idMovimiento = idMovimiento;
     }
 
-    public LocalDate getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 
@@ -58,11 +65,11 @@ public class MovimientoInventario {
         this.cantidad = cantidad;
     }
 
-    public doube getExistenciaAnterior() {
+    public double getExistenciaAnterior() {
         return existenciaAnterior;
     }
 
-    public void setExistenciaAnterior(doube existenciaAnterior) {
+    public void setExistenciaAnterior(double existenciaAnterior) {
         this.existenciaAnterior = existenciaAnterior;
     }
 
@@ -90,5 +97,11 @@ public class MovimientoInventario {
         this.motivo = motivo;
     }
 
+    public Usuario getUsuarioResponsable() {
+        return usuarioResponsable;
+    }
 
+    public void setUsuarioResponsable(Usuario usuarioResponsable) {
+        this.usuarioResponsable = usuarioResponsable;
+    }
 }

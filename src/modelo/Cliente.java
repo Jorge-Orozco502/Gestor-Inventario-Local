@@ -7,13 +7,19 @@ public class Cliente {
     private String nombreCliente;
     private String telefono; 
     private String nitCF;
+    private String direccion;
     
     //Constructor
-    public Cliente(String codigoCliente, String nombreCliente, String telefono, String nitCF) {
+    public Cliente(String codigoCliente, String nombreCliente, String telefono, String nitCF, String direccion) {
         this.codigoCliente = codigoCliente;
-        this.nombreCliente = nombreCliente;
+        setNombreCliente(nombreCliente);
         this.telefono = telefono;
         this.nitCF = nitCF;
+        this.direccion = direccion;
+    }
+
+    //Constructor vacio
+    public Cliente(){
     }
 
     //Get y Set
@@ -30,7 +36,10 @@ public class Cliente {
     }
 
     public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
+        if (nombreCliente == null || nombreCliente.trim().isEmpty()){
+            throw new IllegalArgumentException("El nombre del cliente no puede estar vacío.");
+        }
+        this.nombreCliente = nombreCliente.trim();
     }
 
     public String getTelefono() {
@@ -49,6 +58,19 @@ public class Cliente {
         this.nitCF = nitCF;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
 
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
 
+    //============================================
+
+    //Metodo para visualizar la información del cliente
+    @Override
+    public String toString(){
+        return nombreCliente + "(NIT:" + nitCF + ")";
+    }
 }
