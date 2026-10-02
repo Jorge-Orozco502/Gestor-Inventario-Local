@@ -14,17 +14,21 @@ public class MovimientoInventario {
     private String motivo;
     private Usuario usuarioResponsable;
 
+    private Producto producto;
+
     //Constructor
-    public MovimientoInventario(int idMovimiento, LocalDateTime fecha, TipoMovimiento tipoMovimiento, double cantidad, double existenciaAnterior, double existenciaNueva, String referenciaDocumento, String motivo, Usuario usuarioResponsable) {
+    public MovimientoInventario(int idMovimiento, LocalDateTime fecha, TipoMovimiento tipoMovimiento, double cantidad, double existenciaAnterior, double existenciaNueva, String referenciaDocumento, String motivo,
+                                Usuario usuarioResponsable, Producto producto) {
         this.idMovimiento = idMovimiento;
-        this.fecha = fecha;
-        this.tipoMovimiento = tipoMovimiento;
-        this.cantidad = cantidad;
-        this.existenciaAnterior = existenciaAnterior;
-        this.existenciaNueva = existenciaNueva;
+        setFecha(fecha);
+        setTipoMovimiento(tipoMovimiento);
+        setCantidad(cantidad);
+        setExistenciaAnterior(existenciaAnterior);
+        setExistenciaNueva(existenciaNueva);
         this.referenciaDocumento = referenciaDocumento;
         this.motivo = motivo;
-        this.usuarioResponsable = usuarioResponsable;
+        setUsuarioResponsable(usuarioResponsable);
+        setProducto(producto);
     }
 
     //Constructor asignando fecha y hora actual por defecto
@@ -46,6 +50,9 @@ public class MovimientoInventario {
     }
 
     public void setFecha(LocalDateTime fecha) {
+        if (fecha == null) {
+            throw new IllegalArgumentException("La fecha del movimiento no puede ser nula.");
+        }
         this.fecha = fecha;
     }
 
@@ -54,6 +61,9 @@ public class MovimientoInventario {
     }
 
     public void setTipoMovimiento(TipoMovimiento tipoMovimiento) {
+        if (tipoMovimiento == null){
+            throw new IllegalArgumentException("El tipo de movimiento no puede ser nulo.");
+        }
         this.tipoMovimiento = tipoMovimiento;
     }
 
@@ -62,6 +72,9 @@ public class MovimientoInventario {
     }
 
     public void setCantidad(double cantidad) {
+        if (cantidad < 0){
+            throw new IllegalArgumentException("La cantidad del movimiento no puede ser negativa.");
+        }
         this.cantidad = cantidad;
     }
 
@@ -70,6 +83,9 @@ public class MovimientoInventario {
     }
 
     public void setExistenciaAnterior(double existenciaAnterior) {
+        if (existenciaAnterior < 0){
+            throw new IllegalArgumentException("La existencia anterior no puede ser negativa.");
+        }
         this.existenciaAnterior = existenciaAnterior;
     }
 
@@ -78,6 +94,9 @@ public class MovimientoInventario {
     }
 
     public void setExistenciaNueva(double existenciaNueva) {
+        if (existenciaNueva < 0){
+            throw new IllegalArgumentException("La existencia nueva no puede ser negativa.");
+        }
         this.existenciaNueva = existenciaNueva;
     }
 
@@ -102,6 +121,20 @@ public class MovimientoInventario {
     }
 
     public void setUsuarioResponsable(Usuario usuarioResponsable) {
+        if (usuarioResponsable == null){
+            throw new IllegalArgumentException("El usuario responsable no puede ser nulo.");
+        }
         this.usuarioResponsable = usuarioResponsable;
+    }
+
+    public Producto getProducto(){
+        return producto;
+    }
+
+    public void setProducto(Producto producto){
+        if (producto == null){
+            throw new IllegalArgumentException("El producto asociado al movimiento no puede ser nulo. ");
+        }
+        this.producto = producto;
     }
 }

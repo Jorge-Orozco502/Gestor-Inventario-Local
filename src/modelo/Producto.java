@@ -17,24 +17,20 @@ public abstract class Producto {
     private EstadoProducto estadoProducto;
 
   //Constructor
-    public Producto(String codigo, String nombre, String categoria, String descripcion, String unidadMedida, BigDecimal precioCompra, BigDecimal precioVenta, double existenciaActual, double existenciaMinima, EstadoProducto estadoProducto) {
-        if (existenciaActual < 0){
-            throw new IllegalArgumentException("La existencia actual no puede ser negativa!");
-        }
-        if (existenciaMinima < 0){
-            throw new IllegalArgumentException("La existencia mínima no puede ser negativa!");
-        }
+    public Producto(String codigo, String nombre, String categoria, String descripcion, String unidadMedida,
+                    BigDecimal precioCompra, BigDecimal precioVenta, double existenciaActual,
+                    double existenciaMinima, EstadoProducto estadoProducto) {
 
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.categoria = categoria;
-        this.descripcion = descripcion;
-        this.unidadMedida = unidadMedida;
-        this.precioCompra = precioCompra;
-        this.precioVenta = precioVenta;
-        this.existenciaActual = existenciaActual;
-        this.existenciaMinima = existenciaMinima;
-        this.estadoProducto = estadoProducto;
+        setCodigo(codigo);
+        setNombre(nombre);
+        setCategoria(categoria);
+        setDescripcion(descripcion);
+        setUnidadMedida(unidadMedida);
+        setPrecioCompra(precioCompra);
+        setPrecioVenta(precioVenta);
+        setExistenciaActual(existenciaActual);
+        setExistenciaMinima(existenciaMinima);
+        setEstadoProducto(estadoProducto);
     }
 
     //Constructor Vacio
@@ -47,6 +43,9 @@ public abstract class Producto {
     }
 
     public void setCodigo(String codigo) {
+        if (codigo == null || codigo.trim().isEmpty()){
+            throw new IllegalArgumentException("El código del producto no puede ser nulo o vacío.");
+        }
         this.codigo = codigo;
     }
 
@@ -55,6 +54,9 @@ public abstract class Producto {
     }
 
     public void setNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()){
+            throw new IllegalArgumentException("El nombre del producto no puede ser nulo o vacío.");
+        }
         this.nombre = nombre;
     }
 
@@ -63,6 +65,9 @@ public abstract class Producto {
     }
 
     public void setCategoria(String categoria) {
+        if (categoria == null || categoria.trim().isEmpty()){
+            throw new IllegalArgumentException("La categoría no puede ser nula o vacía.");
+        }
         this.categoria = categoria;
     }
 
@@ -71,6 +76,9 @@ public abstract class Producto {
     }
 
     public void setDescripcion(String descripcion) {
+        if (descripcion == null || descripcion.trim().isEmpty()){
+            throw new IllegalArgumentException("La descripción no puede ser nula o vacía.");
+        }
         this.descripcion = descripcion;
     }
 
@@ -79,6 +87,9 @@ public abstract class Producto {
     }
 
     public void setUnidadMedida(String unidadMedida) {
+        if (unidadMedida == null || unidadMedida.trim().isEmpty()){
+            throw new IllegalArgumentException("La unidad de medida no puede ser nula o vacía.");
+        }
         this.unidadMedida = unidadMedida;
     }
 
@@ -87,6 +98,9 @@ public abstract class Producto {
     }
 
     public void setPrecioCompra(BigDecimal precioCompra) {
+        if (precioCompra == null || precioCompra.compareTo(BigDecimal.ZERO) < 0){
+            throw new IllegalArgumentException("El precio de compra no puede ser nulo ni negativo.");
+        }
         this.precioCompra = precioCompra;
     }
 
@@ -95,6 +109,9 @@ public abstract class Producto {
     }
 
     public void setPrecioVenta(BigDecimal precioVenta) {
+        if (precioVenta == null || precioVenta.compareTo(BigDecimal.ZERO) < 0){
+            throw new IllegalArgumentException("El precio de venta no puede ser nulo ni negativo.");
+        }
         this.precioVenta = precioVenta;
     }
 
@@ -125,6 +142,9 @@ public abstract class Producto {
     }
 
     public void setEstadoProducto(EstadoProducto estadoProducto) {
+        if (estadoProducto == null){
+            throw new IllegalArgumentException("El estado del producto no puede ser nulo.");
+        }
         this.estadoProducto = estadoProducto;
     }
 
@@ -135,7 +155,6 @@ public abstract class Producto {
         if (precioCompra == null){
             return BigDecimal.ZERO;
         }
-
         BigDecimal existencia = BigDecimal.valueOf(existenciaActual);
         return existencia.multiply(precioCompra);
     }
@@ -172,9 +191,7 @@ public abstract class Producto {
         return true;
     }
 
-    //Boleano para indicar si el producto es vendible o no.
+    //Método Abstracto para poder indicar si el producto es vendible o no según la subclase
     public abstract boolean esVendible();
-
-
 
 }

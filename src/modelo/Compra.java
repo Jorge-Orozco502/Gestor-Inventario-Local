@@ -1,6 +1,7 @@
 package modelo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,11 @@ public class Compra {
 
     //Constructor
     public Compra(String numeroCompra, LocalDate fechaCompra, FormaPago formaPago, BigDecimal total, Proveedor proveedor) {
-        this.numeroCompra = numeroCompra;
-        this.fechaCompra = fechaCompra;
-        this.formaPago = formaPago;
-        this.total = total != null ? total : BigDecimal.ZERO;
-        this.proveedor = proveedor;
+        setNumeroCompra(numeroCompra);
+        setFechaCompra(fechaCompra);
+        setFormaPago(formaPago);
+        setTotal(total != null ? total: BigDecimal.ZERO);
+        setProveedor(proveedor);
         this.detallesCompra = new ArrayList<>();
     }
 
@@ -31,6 +32,7 @@ public class Compra {
     }
 
     //Get y Set
+
     public String getNumeroCompra() {
         return numeroCompra;
     }
@@ -58,6 +60,9 @@ public class Compra {
     }
 
     public void setFormaPago(FormaPago formaPago) {
+        if (formaPago == null){
+            throw new IllegalArgumentException("La forma de pago no puede ser nula.");
+        }
         this.formaPago = formaPago;
     }
 
@@ -88,13 +93,14 @@ public class Compra {
     }
 
     public void setDetallesCompra(List<DetalleCompra> detallesCompra){
+        if (detallesCompra == null){
+            throw new IllegalArgumentException("La lista de detalles de compra no puede ser nula.");
+        }
         this.detallesCompra = detallesCompra;
         recalcularTotal();
     }
 
     //================================
-
-    //Metodo toString para poder depurar o visualización rápida
 
     //Metodo para agregar detalle a lo comprado
     public void agregarDetalleCompra(DetalleCompra detalle){
@@ -116,7 +122,7 @@ public class Compra {
         this.total = sumaTotal;
     }
 
-    //Metodo para confirmar la compra
+    //Metodo para confirmar la compra, actualizar inventario y generar movimientos
     public List<MovimientoInventario> confirmarCompra(Usuario usuarioResponsable){
         List<MovimientoInventario> movimientos = new ArrayList<>();
 
@@ -124,6 +130,11 @@ public class Compra {
         if (this.detallesCompra ==null || this.detallesCompra.isEmpty()){
             throw new IllegalArgumentException("No se puede confirmar una compra sin detalles de productos");
         }
+
+        if (usuarioResponsable == null){
+            throw new IllegalArgumentException("Se requiere un usuario responsable para registrar la confirmación de la compra.");
+        }
+
         for (DetalleCompra detalle : this.detallesCompra){
             Producto producto = detalle.getProducto();
 
@@ -134,18 +145,26 @@ public class Compra {
             //obtener la cantidad que se compro
             double cantidadComprada = detalle.getCantidadComprada();
 
+            //capturar las existencias anteriores y una nueva para un registro exacto
+            double existenciaAnterior = producto.getExistenciaActual();
+
             //aumentar la existencia del inventario
-            producto.setExistenciaActual(producto.getExistenciaActual() + cantidadComprada);
+            producto.aumentarExistencia(cantidadComprada);
+
+            double existenciaNueva = producto.getExistenciaActual();
 
             //entrada de inventario por la compra realizada
             MovimientoInventario movimiento = new MovimientoInventario(
-                    LocalDate.now(),
-                    "ENTRADA_COMPRA",
+                    0,
+                    LocalDateTime.now(),
+                    TipoMovimiento.ENTRADA_COMPRA,
                     cantidadComprada,
-                    producto.getExistenciaActual(),
-                    "Compra de productos - Factura No:" + this.numeroCompra,
-                    producto,
-                    usuarioResponsable
+                    existenciaAnterior,
+                    existenciaNueva,
+                    "Compra de productos - Factura No:" +   this.numeroCompra,
+                    "Ingreso por compra al proveedor" + (proveedor != null ? proveedor.getNombreEmpresa() : ""),
+                    usuarioResponsable,
+                    producto
             );
             movimientos.add(movimiento);
         }
@@ -162,7 +181,5 @@ public class Compra {
                 ", total=" + total +
                 '}';
     }
-
-
 
 }
