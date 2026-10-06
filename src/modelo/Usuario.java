@@ -1,4 +1,142 @@
 package modelo;
 
-public class Usuario {
+import java.time.LocalDate;
+import java.util.Objects;
+
+public abstract class Usuario {
+    //Atributos
+    private int idUsuario;
+    private String nombreUsuario;
+    private String contrasenaHash;
+    private String nombreCompleto;
+    private boolean activo;
+    private LocalDate fechaCreacion;
+
+    //Constructor
+    public Usuario(int idUsuario, String nombreUsuario, String contrasenaHash, String nombreCompleto, boolean activo, LocalDate fechaCreacion) {
+        setIdUsuario(idUsuario);
+        setNombreUsuario(nombreUsuario);
+        setContrasenaHash(contrasenaHash);
+        setNombreCompleto(nombreCompleto);
+        setActivo(activo);
+        setFechaCreacion(fechaCreacion);
+    }
+
+    //Constructor vacio
+    public Usuario(){
+        this.fechaCreacion = LocalDate.now();
+        this.activo = true;
+    }
+
+    //GET y SET
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        if(idUsuario <= 0){
+            throw new IllegalArgumentException("El ID del usuario debe ser un valor positivo.");
+        }
+        this.idUsuario = idUsuario;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()){
+            throw new IllegalArgumentException("El nombre de usuario no puede estar vacío.");
+        }
+        this.nombreUsuario = nombreUsuario.trim();
+    }
+
+    public String getContrasenaHash() {
+        return contrasenaHash;
+    }
+
+    public void setContrasenaHash(String contrasenaHash) {
+        if(contrasenaHash == null || contrasenaHash.trim().isEmpty()){
+            throw new IllegalArgumentException("La contrasena no puede estar vacía.");
+        }
+        this.contrasenaHash = contrasenaHash;
+    }
+
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public void setNombreCompleto(String nombreCompleto) {
+        if (nombreCompleto == null || nombreCompleto.trim().isEmpty()){
+            throw new IllegalArgumentException("El nombre completo no puede estar vacío.");
+        }
+        this.nombreCompleto = nombreCompleto.trim();
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        if(fechaCreacion == null){
+            throw new IllegalArgumentException("La fecha de creación no puede ser nula.");
+        }
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    //===========================
+
+    /**
+    * Cambiar la contraseña del usuario revisando que no esté vacia.
+    * @param     nuevaContrasena La nueva contraseña que se actualizara
+    * @return    retorna true si se actualizó correctamente
+    */
+
+    public boolean cambiarContrasena(String nuevaContrasena){
+        if (nuevaContrasena == null || nuevaContrasena.trim().isEmpty()){
+            throw new IllegalArgumentException("La nueva contraseña no puede estar vacía.");
+        }
+        setContrasenaHash(nuevaContrasena);
+        return true;
+    }
+
+    /**
+     * Verificar si el usuario tiene permiso de realizar algun cambio
+    * @param  accion Es la acción funcion a verificar
+    * @return true si el usuario tiene autorización
+    */
+    public abstract boolean tienePermiso(String accion);
+
+    //Metodos toString, equals, hashcode
+    @Override
+    public String toString(){
+        return nombreCompleto + "(Usuario:" + nombreUsuario + ")";
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return idUsuario == usuario.idUsuario;
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(idUsuario);
+    }
+
+
 }
+
+
+
+

@@ -1,5 +1,7 @@
 package modelo;
 
+import java.util.Objects;
+
 public class Proveedor {
     //Atributos
     private String codigo;
@@ -11,12 +13,16 @@ public class Proveedor {
 
     //Constructor
     public Proveedor(String codigo, String nombreEmpresa, String nit, String telefono, String direccion, String correoElectronico) {
-        this.codigo = codigo;
-        this.nombreEmpresa = nombreEmpresa;
-        this.nit = nit;
-        this.telefono = telefono;
-        this.direccion = direccion;
-        this.correoElectronico = correoElectronico;
+        setCodigo(codigo);
+        setNombreEmpresa(nombreEmpresa);
+        setNit(nit);
+        setTelefono(telefono);
+        setDireccion(direccion);
+        setCorreoElectronico(correoElectronico);
+    }
+
+    //Constructor Vacio
+    public Proveedor(){
     }
 
     //Get y Set
@@ -25,7 +31,10 @@ public class Proveedor {
     }
 
     public void setCodigo(String codigo) {
-        this.codigo = codigo;
+        if (codigo == null || codigo.trim().isEmpty()){
+            throw new IllegalArgumentException("El código del proveedor no puede estar vacío.");
+        }
+        this.codigo = codigo.trim();
     }
 
     public String getNombreEmpresa() {
@@ -33,7 +42,10 @@ public class Proveedor {
     }
 
     public void setNombreEmpresa(String nombreEmpresa) {
-        this.nombreEmpresa = nombreEmpresa;
+        if( nombreEmpresa == null || nombreEmpresa.trim().isEmpty()){
+            throw new IllegalArgumentException("El nombre de la empresa no puede estar vacío.");
+        }
+        this.nombreEmpresa = nombreEmpresa.trim();
     }
 
     public String getNit() {
@@ -41,7 +53,10 @@ public class Proveedor {
     }
 
     public void setNit(String nit) {
-        this.nit = nit;
+        if(nit == null || nit.trim().isEmpty()){
+            throw new IllegalArgumentException("El NIT del proveedor no puede estar vacio.");
+        }
+        this.nit = nit.trim();
     }
 
     public String getTelefono() {
@@ -49,7 +64,7 @@ public class Proveedor {
     }
 
     public void setTelefono(String telefono) {
-        this.telefono = telefono;
+        this.telefono = (telefono != null) ? telefono.trim(): null;
     }
 
     public String getDireccion() {
@@ -57,7 +72,7 @@ public class Proveedor {
     }
 
     public void setDireccion(String direccion) {
-        this.direccion = direccion;
+        this.direccion = (direccion != null) ? direccion.trim() : null;
     }
 
     public String getCorreoElectronico() {
@@ -65,9 +80,27 @@ public class Proveedor {
     }
 
     public void setCorreoElectronico(String correoElectronico) {
-        this.correoElectronico = correoElectronico;
+        this.correoElectronico = (correoElectronico != null) ? correoElectronico.trim() : null;
     }
 
-
     //===========================================
+    //Metodo para sobreescribir
+    @Override
+    public String toString(){
+        return nombreEmpresa + "(NIT:" + nit + ")";
+    }
+
+    //Metodo para comparar dos objetos con su código
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Proveedor proveedor = (Proveedor) o;
+        return Objects.equals(codigo, proveedor.codigo);
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(codigo);
+    }
 }

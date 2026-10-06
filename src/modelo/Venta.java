@@ -2,6 +2,10 @@ package modelo;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class Venta {
     //Atributos
@@ -12,25 +16,33 @@ public class Venta {
     private BigDecimal totalDescuentos;
     private BigDecimal totalIva;
     private BigDecimal totalFinal;
+    //Relaciones
+    private Cliente cliente;
+    private Usuario usuarioResponsable;
+    private List<DetalleVenta> detallesVenta;
 
     //Constructor
-    public Venta(String numeroVenta, LocalDate fecha, FormaPago formaPago, BigDecimal subtotalGeneral, BigDecimal totalDescuentos, BigDecimal totalIva, BigDecimal totalFinal) {
-        this.numeroVenta = numeroVenta;
-        this.fecha = fecha;
-        this.formaPago = formaPago;
-        this.subtotalGeneral = subtotalGeneral;
-        this.totalDescuentos = totalDescuentos;
-        this.totalIva = totalIva;
-        this.totalFinal = totalFinal;
+    public Venta(String numeroVenta, LocalDate fecha, FormaPago formaPago, BigDecimal subtotalGeneral, BigDecimal totalDescuentos, BigDecimal totalIva,
+                 BigDecimal totalFinal, Cliente cliente, Usuario usuarioResponsable) {
+        this.numeroVenta = Objects.requireNonNull(numeroVenta, "El número de venta no puede ser nulo.");
+        this.fecha = Objects.requireNonNull(fecha, "La fecha no puede ser nula.");
+        this.formaPago = Objects.requireNonNull(formaPago, "La forma de pago no puede ser nula.");
+        this.cliente = Objects.requireNonNull(cliente, "El cliente asociado no puede ser nulo.");
+        this.usuarioResponsable = Objects.requireNonNull(usuarioResponsable, "El usuario responsable no puede ser nulo.");
+        this.subtotalGeneral = validarMonto(subtotalGeneral, "Subtotal general");
+        this.totalDescuentos = validarMonto(totalDescuentos, "Total descuentos");
+        this.totalIva = validarMonto(totalIva, "Total IVA");
+        this.totalFinal = validarMonto(totalFinal, "Total final");
+        this.detallesVenta = new ArrayList<>();
     }
 
-    //Get y Set
+    //GET y SET
     public String getNumeroVenta() {
         return numeroVenta;
     }
 
     public void setNumeroVenta(String numeroVenta) {
-        this.numeroVenta = numeroVenta;
+        this.numeroVenta = Objects.requireNonNull(numeroVenta, "El número de venta no puede ser nulo.");
     }
 
     public LocalDate getFecha() {
@@ -38,7 +50,7 @@ public class Venta {
     }
 
     public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
+        this.fecha = Objects.requireNonNull(fecha, "La fecha no puede ser nula.");
     }
 
     public FormaPago getFormaPago() {
@@ -46,7 +58,7 @@ public class Venta {
     }
 
     public void setFormaPago(FormaPago formaPago) {
-        this.formaPago = formaPago;
+        this.formaPago = Objects.requireNonNull(formaPago, "La forma de pago no puede ser nula.");
     }
 
     public BigDecimal getSubtotalGeneral() {
@@ -54,7 +66,7 @@ public class Venta {
     }
 
     public void setSubtotalGeneral(BigDecimal subtotalGeneral) {
-        this.subtotalGeneral = subtotalGeneral;
+        this.subtotalGeneral = validarMonto(subtotalGeneral, "Subtotal general");
     }
 
     public BigDecimal getTotalDescuentos() {
@@ -62,7 +74,7 @@ public class Venta {
     }
 
     public void setTotalDescuentos(BigDecimal totalDescuentos) {
-        this.totalDescuentos = totalDescuentos;
+        this.totalDescuentos = validarMonto(totalDescuentos, "Total descuentos");
     }
 
     public BigDecimal getTotalIva() {
@@ -70,7 +82,7 @@ public class Venta {
     }
 
     public void setTotalIva(BigDecimal totalIva) {
-        this.totalIva = totalIva;
+        this.totalIva = validarMonto(totalIva, "Total IVA");
     }
 
     public BigDecimal getTotalFinal() {
@@ -78,9 +90,56 @@ public class Venta {
     }
 
     public void setTotalFinal(BigDecimal totalFinal) {
-        this.totalFinal = totalFinal;
+        this.totalFinal = validarMonto(totalFinal, "Total final");
     }
 
+    public Cliente getCliente(){
+        return cliente;
+    }
 
+    public void setCliente(Cliente cliente){
+        this.cliente = Objects.requireNonNull(cliente, "El cliente no puede ser nulo.");
+    }
+
+    public Usuario getUsuarioResponsable(){
+        return usuarioResponsable;
+    }
+
+    public void setUsuarioResponsable(Usuario usuarioResponsable){
+        this.usuarioResponsable = Objects.requireNonNull(usuarioResponsable, "El usuario responsable no puede ser nulo.");
+    }
+
+    //Retornar vista inmodificable para los detalles de venta, proteger el encapsulamiento de la lista
+    public List<DetalleVenta> getDetallesVenta(){
+        return Collections.unmodifiableList(detallesVenta);
+    }
+
+    public void setDetallesVenta(List<DetalleVenta> detallesVenta){
+        Objects.requireNonNull(detallesVenta, "La lista de detalles no puede ser nula.");
+        this.detallesVenta = new ArrayList<>(detallesVenta);
+    }
+
+    //=================================
+
+    //Metodo para validar que los montos sean validos
+    private BigDecimal validarMonto(BigDecimal monto, String nombreCampo){
+        Objects.requireNonNull(monto, "El campo" + nombreCampo + "no puede ser nulo.");
+        if(monto.compareTo(BigDecimal.ZERO)<0){
+            throw new IllegalArgumentException("El campo" + nombreCampo + "no puede tener un valor negativo.");
+        }
+        return monto;
+    }
+
+    //Metodo para agregar detalles a la lista de detalles
+    public void agregarDetalle(DetalleVenta detalle){
+        Objects.requireNonNull(detalle, "El detalle de venta no puede ser nulo.");
+        this.detallesVenta.add(detalle);
+    }
+
+    //Metodo para eliminar detalles
+    public void eliminarDetalle(DetalleVenta detalle){
+        Objects.requireNonNull(detalle, "El detalle a eliminar no puede ser nulo.");
+        this.detallesVenta.remove(detalle);
+    }
 
 }

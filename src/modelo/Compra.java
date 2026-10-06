@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Compra {
     //Atributos
@@ -12,6 +14,7 @@ public class Compra {
     private LocalDate fechaCompra;
     private FormaPago formaPago;
     private BigDecimal total;
+    //Relacion
     private Proveedor proveedor;
     private List<DetalleCompra> detallesCompra;
 
@@ -32,7 +35,6 @@ public class Compra {
     }
 
     //Get y Set
-
     public String getNumeroCompra() {
         return numeroCompra;
     }
@@ -49,10 +51,7 @@ public class Compra {
     }
 
     public void setFechaCompra(LocalDate fechaCompra) {
-        if (fechaCompra == null){
-            throw new IllegalArgumentException("La fecha de compra no puede ser nula.");
-        }
-        this.fechaCompra = fechaCompra;
+        this.fechaCompra = Objects.requireNonNull(fechaCompra, "La fecha de compra no puede ser nula.");
     }
 
     public FormaPago getFormaPago() {
@@ -60,10 +59,7 @@ public class Compra {
     }
 
     public void setFormaPago(FormaPago formaPago) {
-        if (formaPago == null){
-            throw new IllegalArgumentException("La forma de pago no puede ser nula.");
-        }
-        this.formaPago = formaPago;
+        this.formaPago = Objects.requireNonNull(formaPago, "La forma de pago no puede ser nula.");
     }
 
     public BigDecimal getTotal() {
@@ -82,21 +78,16 @@ public class Compra {
     }
 
     public void setProveedor(Proveedor proveedor) {
-        if (proveedor == null){
-            throw new IllegalArgumentException("La compra debe estar asociada a un proveedor.");
-        }
-        this.proveedor = proveedor;
+        this.proveedor = Objects.requireNonNull(proveedor, "La compra debe estar asociada a un proveedor.");
     }
 
     public List<DetalleCompra> getDetallesCompra(){
-        return detallesCompra;
+        return Collections.unmodifiableList(detallesCompra);
     }
 
     public void setDetallesCompra(List<DetalleCompra> detallesCompra){
-        if (detallesCompra == null){
-            throw new IllegalArgumentException("La lista de detalles de compra no puede ser nula.");
-        }
-        this.detallesCompra = detallesCompra;
+        Objects.requireNonNull(detallesCompra, "La lista de detalles de compra no puede ser nula.");
+        this.detallesCompra = new ArrayList<>(detallesCompra);
         recalcularTotal();
     }
 
@@ -104,10 +95,9 @@ public class Compra {
 
     //Metodo para agregar detalle a lo comprado
     public void agregarDetalleCompra(DetalleCompra detalle){
-        if (detalle != null){
-            this.detallesCompra.add(detalle);
-            recalcularTotal();
-        }
+        Objects.requireNonNull(detalle, "El detalle de compra no puede ser nulo.");
+        this.detallesCompra.add(detalle);
+        recalcularTotal();
     }
 
     //Metodo para recalcular el total sumando los subtotales de cada detalle
@@ -171,6 +161,7 @@ public class Compra {
         return movimientos;
     }
 
+    //Metodo toString
     @Override
     public String toString() {
         return "Compra{" +
