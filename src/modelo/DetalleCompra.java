@@ -56,11 +56,11 @@ public class DetalleCompra {
     }
 
     public Producto getProducto(){
-        this.producto = producto;
+        return producto;
     }
 
-    public Producto setProducto(Producto producto){
-        return producto;
+    public void setProducto(Producto producto){
+        this.producto = producto;
     }
 
     //===============================

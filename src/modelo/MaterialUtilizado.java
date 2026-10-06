@@ -40,6 +40,17 @@ public class MaterialUtilizado {
 
     //========================
 
+    //Metodo para calcular el costo total del material que se utiliza
+    public double calcularCosto(){
+        if(this.materiaPrima != null && this.materiaPrima.getPrecioCompra() != null){
+            //Convertir el decimal del precio a un double
+            return this.materiaPrima.getPrecioCompra().doubleValue()*this.cantidadUtilizada;
+        }
+        return 0.0;
+    }
+
+
+    //Metodo toString
     @Override
     public String toString(){
         return "Material Utilizado{"    +

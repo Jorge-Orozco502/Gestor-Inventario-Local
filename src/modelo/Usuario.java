@@ -22,6 +22,15 @@ public abstract class Usuario {
         setFechaCreacion(fechaCreacion);
     }
 
+    //Constructor para instanciar nuevo usuario desde cero
+    public Usuario (String nombreUsuario, String contrasenaHash, String nombreCompleto){
+        setNombreUsuario(nombreUsuario);
+        setContrasenaHash(contrasenaHash);
+        setNombreCompleto(nombreCompleto);
+        this.activo = true;
+        this.fechaCreacion = LocalDate.now();
+    }
+
     //Constructor vacio
     public Usuario(){
         this.fechaCreacion = LocalDate.now();

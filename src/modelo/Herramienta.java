@@ -14,6 +14,15 @@ public class Herramienta extends Producto{
         super();
     }
 
+    //======================
+
+    //Metodo para definir si es vendible
+    @Override
+    public  boolean esVendible(){
+        return false;
+    }
+
+    //Metodo toString
     @Override
     public String toString(){
         return "Herramienta{" +
