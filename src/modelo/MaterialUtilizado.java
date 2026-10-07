@@ -54,8 +54,8 @@ public class MaterialUtilizado {
     @Override
     public String toString(){
         return "Material Utilizado{"    +
-                "materia prima="    +   (materiaPrima != null ? materiaPrima.getNombre() : "N/A")   +
-                ", cantidad utilizada=" +   cantidadUtilizada   +
+                "materiaPrima="    +   (materiaPrima != null ? materiaPrima.getNombre() : "N/A")   +
+                ", cantidadUtilizada=" +   cantidadUtilizada   +
                 '}';
     }
 }

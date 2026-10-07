@@ -29,8 +29,8 @@ public class Herramienta extends Producto{
                 "codigo='"  +   getCodigo() +   '\''    +
                 ",nombre='" +   getNombre() +   '\''    +
                 ",categoria='"  +   getCategoria() + '\'' +
-                ",precio venta="    +   getPrecioVenta()    +
-                ",existencia actual=" +  getExistenciaActual()   +
+                ",precioVenta="    +   getPrecioVenta()    +
+                ",existenciaActual=" +  getExistenciaActual()   +
                 '}';
     }
 

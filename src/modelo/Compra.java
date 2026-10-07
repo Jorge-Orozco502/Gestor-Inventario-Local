@@ -165,10 +165,10 @@ public class Compra {
     @Override
     public String toString() {
         return "Compra{" +
-                "número de compra='" + numeroCompra + '\'' +
-                ", fecha de compra=" + fechaCompra +
+                "númeroDeCompra='" + numeroCompra + '\'' +
+                ", fechaDeCompra=" + fechaCompra +
                 ", proveedor=" + (proveedor != null ? proveedor.getNombreEmpresa() : "N/A") +
-                ", forma de pago=" + formaPago +
+                ", formaDePago=" + formaPago +
                 ", total=" + total +
                 '}';
     }

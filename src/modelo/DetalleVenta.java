@@ -10,7 +10,7 @@ public class DetalleVenta {
     private BigDecimal subtotal;
     private BigDecimal ivaLinea;
     private BigDecimal totalLinea;
-
+    //Relacion
     private Producto producto;
 
     //Constructor
@@ -115,7 +115,7 @@ public class DetalleVenta {
         return "DetalleVenta{" +
                 "producto=" +   (producto != null ? producto.getNombre(): "N/A") +
                 ",cantidad="    +   cantidadSolicitada  +
-                ",precio unitario=" +   precioUnitario  +
+                ",precioUnitario=" +   precioUnitario  +
                 ",subtotal="    +   subtotal +
                 ",ivaLinea=" + ivaLinea +
                 ",totalLinea="  +   totalLinea+
