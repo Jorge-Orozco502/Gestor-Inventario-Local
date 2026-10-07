@@ -1,0 +1,8 @@
+# Ignorar la base de datos portable (Evita subir 500 MB a Git)
+mysql_portable/
+
+# Archivos de compilación e IDE
+out/
+.idea/
+*.iml
+*.class
