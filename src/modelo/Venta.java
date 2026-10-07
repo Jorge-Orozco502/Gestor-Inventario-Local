@@ -130,6 +130,45 @@ public class Venta {
         return monto;
     }
 
+    //Metodo para calcular los totales generales
+    public void calcularTotales(){
+        BigDecimal subtotalAcumulado = BigDecimal.ZERO;
+        for (DetalleVenta detalle : detallesVenta){
+            subtotalAcumulado = subtotalAcumulado.add(detalle.getSubtotal());
+        }
+        this.subtotalGeneral = subtotalAcumulado;
+
+        //Calcular el Iva y el total final
+        this.totalIva = this.subtotalGeneral.multiply(new BigDecimal("0.12"));
+
+        //Descuentos nulos
+        BigDecimal descuentos = (this.totalDescuentos != null) ? this.totalDescuentos : BigDecimal.ZERO;
+
+        //Calculo total final: subtotal + iva - descuentos
+        this.totalFinal = this.subtotalGeneral.add(this.totalIva).subtract(descuentos);
+    }
+
+    //Método para validar si hay existencia suficiente en el inventario
+    public boolean validarExistenciaDisponible() {
+        for (DetalleVenta detalle : detallesVenta) {
+            if (detalle.getProducto() != null) {
+                if (detalle.getProducto().getExistenciaActual() < detalle.getCantidadSolicitada()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    //Método para confirmar la venta
+    public MovimientoInventario confirmarVenta(){
+        if (!validarExistenciaDisponible()){
+            throw new IllegalArgumentException("No se puede confirmar la venta: stock insuficiente en uno o más producto.");
+        }
+        calcularTotales();
+        return  null;
+    }
+
     //Metodo para agregar detalles a la lista de detalles
     public void agregarDetalle(DetalleVenta detalle){
         Objects.requireNonNull(detalle, "El detalle de venta no puede ser nulo.");

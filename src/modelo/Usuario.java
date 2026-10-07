@@ -118,6 +118,19 @@ public abstract class Usuario {
     }
 
     /**
+     * Verificar si la contraseña coincide con la almacenada
+     * @param contrasenaIngresada   Es la contraseña que se escribe al iniciar sesión
+     * @return true     Retorna verdadero si la contraseña coincide
+     */
+    public boolean verificarContrasena(String contrasenaIngresada){
+        if( contrasenaIngresada == null || contrasenaIngresada.trim().isEmpty()){
+            return false;
+        }
+        return this.contrasenaHash.equals(contrasenaIngresada);
+    }
+
+
+    /**
      * Verificar si el usuario tiene permiso de realizar algun cambio
     * @param  accion Es la acción funcion a verificar
     * @return true si el usuario tiene autorización
