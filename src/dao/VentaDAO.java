@@ -16,7 +16,7 @@ import java.util.List;
 
 public class VentaDAO {
 
-    //CREATE insertar venta
+    //CREATE
     public boolean insertarVenta(Venta venta) {
         String sqlVenta = "INSERT INTO venta (numero_venta, fecha, codigo_cliente, id_usuario_responsable, forma_pago, subtotal_general, total_descuentos, total_iva, total_final) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO detalle_venta (numero_venta, codigo_producto, cantidad_solicitada, precio_unitario, subtotal, iva_linea, total_linea) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -80,7 +80,7 @@ public class VentaDAO {
         return false;
     }
 
-    //READ consultar/listar
+    //READ
     public List<Venta> listarVentas(){
         List<Venta> listaVentas = new ArrayList<>();
         String sql = "SELECT * FROM venta";
@@ -129,7 +129,7 @@ public class VentaDAO {
         return listaVentas;
     }
 
-    //UPDATE actualizar datos
+    //UPDATE
     public boolean actualizarVenta(Venta venta){
         String sql = "UPDATE venta SET forma_pago = ?, subtotal_general = ?, total_descuentos = ?, total_iva = ?, total_final = ? WHERE numero_venta = ?";
 
