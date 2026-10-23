@@ -167,4 +167,41 @@ public class UsuarioDAO {
             return false;
         }
     }
+    
+    // VALIDAR USUARIO 
+    public boolean validarUsuario(String nombreUsuario, String contrasena) {
+        String sql = "SELECT 1 FROM usuario "
+                   + "WHERE nombre_usuario = ? "
+                   + "AND contrasena_hash = ? "
+                   + "AND activo = 1";
+            
+            try (Connection conexion = conexionBD.obtenerConexion()) {
+                if (conexion == null) {
+                return false;
+            }
+
+            System.out.println(
+            "Base usada por la aplicación: " + conexion.getCatalog()
+            );
+
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+                pstmt.setString(1, nombreUsuario);
+                pstmt.setString(2, contrasena);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    boolean coincide = rs.next();
+                    System.out.println("¿Coincide el usuario y contraseña?: " + coincide);
+                    return coincide;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al validar el usuario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    
+    
+    
+    
 }

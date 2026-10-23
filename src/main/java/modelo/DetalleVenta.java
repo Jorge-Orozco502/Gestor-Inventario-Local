@@ -91,24 +91,28 @@ public class DetalleVenta {
     //================================================
 
     //Metodo para calcular los montos de cada línea
-    public void calcularTotales(){
-        if (this.precioUnitario != null && this.cantidadSolicitada >0){
-           BigDecimal cantidadBD = BigDecimal.valueOf(this.cantidadSolicitada);
+    public void calcularTotales() {
+        if (this.precioUnitario != null && this.cantidadSolicitada > 0) {
+            BigDecimal cantidadBD = BigDecimal.valueOf(this.cantidadSolicitada);
 
-           //subtotal = el precio unitario * cantidad de productos
-            this.subtotal = this.precioUnitario.multiply(cantidadBD).setScale(2, RoundingMode.HALF_UP);
+            // El precio unitario ya incluye IVA.
+            this.totalLinea = this.precioUnitario
+                    .multiply(cantidadBD)
+                    .setScale(2, RoundingMode.HALF_UP);
 
-            // Iva por linea (el iva es del 12%
-            this.ivaLinea = this.subtotal.multiply(new BigDecimal("0.12")).setScale(2, RoundingMode.HALF_UP);
+            // Separar del total el subtotal sin IVA.
+            this.subtotal = this.totalLinea
+                    .divide(new BigDecimal("1.12"), 2, RoundingMode.HALF_UP);
 
-            //total de la linea = el subtotal + Iva
-            this.totalLinea = this.subtotal.add(this.ivaLinea);
+            // La diferencia conserva el total exacto después del redondeo.
+            this.ivaLinea = this.totalLinea.subtract(this.subtotal);
         } else {
             this.subtotal = BigDecimal.ZERO;
             this.ivaLinea = BigDecimal.ZERO;
             this.totalLinea = BigDecimal.ZERO;
         }
     }
+    
 
     @Override
     public String toString(){

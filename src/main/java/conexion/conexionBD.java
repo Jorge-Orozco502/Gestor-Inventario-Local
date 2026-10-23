@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class conexionBD {
     private static final String URL = "jdbc:mysql://localhost:3306/inventario_vidrieria";
     private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "SQLUmg26*";
 
     //Metodo para DAO
     public static Connection obtenerConexion(){

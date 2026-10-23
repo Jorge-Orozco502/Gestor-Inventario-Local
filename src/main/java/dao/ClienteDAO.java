@@ -57,26 +57,27 @@ public class ClienteDAO {
   }
 
 //UPDATE
+    //UPDATE
     public boolean actualizarCliente(Cliente cliente){
-      String sql = "UPDATE cliente SET nombre = ?, nit_cf = ?, telefono = ?, direccion = ? WHERE codigo = ?";
+        String sql = "UPDATE cliente SET nombre = ?, nit_cf = ?, telefono = ?, direccion = ? WHERE codigo = ?";
 
-      try (Connection conexion = conexionBD.obtenerConexion();
-           PreparedStatement pstmt = conexion.prepareStatement(sql)){
+        try (Connection conexion = conexionBD.obtenerConexion();
+             PreparedStatement pstmt = conexion.prepareStatement(sql)){
 
-          if (conexion == null) return false;
+            if (conexion == null) return false;
 
-          pstmt.setString(1, cliente.getNombreCliente());
-          pstmt.setString(2, cliente.getNitCF());
-          pstmt.setString(3, cliente.getTelefono());
-          pstmt.setString(4, cliente.getDireccion());
-          pstmt.setString(5, cliente.getCodigoCliente());
+            pstmt.setString(1, cliente.getNombreCliente());
+            pstmt.setString(2, cliente.getNitCF());
+            pstmt.setString(3, cliente.getTelefono());
+            pstmt.setString(4, cliente.getDireccion());
+            pstmt.setString(5, cliente.getCodigoCliente()); // Clave para ubicar el registro
 
-          int filasAfectadas = pstmt.executeUpdate();
-          return filasAfectadas > 0;
-      } catch (SQLException e){
-          System.out.println("Error al actualizar el cliente:" + e.getMessage());
-          return false;
-      }
+            int filasAfectadas = pstmt.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e){
+            System.out.println("Error al actualizar el cliente:" + e.getMessage());
+            return false;
+        }
     }
 
   //DELETE
@@ -96,4 +97,32 @@ public class ClienteDAO {
           return false;
       }
   }
+  public List<Cliente> filtrarClientes(String filtro) {
+        List<Cliente> listaClientes = new ArrayList<>();
+        String sql = "SELECT * FROM cliente WHERE codigo LIKE ? OR nombre LIKE ?";
+
+        try (Connection conexion = conexionBD.obtenerConexion();
+             PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+
+            String patron = "%" + filtro + "%";
+            pstmt.setString(1, patron);
+            pstmt.setString(2, patron);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String codigo = rs.getString("codigo");
+                    String nombre = rs.getString("nombre");
+                    String nitCf = rs.getString("nit_cf");
+                    String telefono = rs.getString("telefono");
+                    String direccion = rs.getString("direccion");
+
+                    Cliente cliente = new Cliente(codigo, nombre, telefono, nitCf, direccion);
+                    listaClientes.add(cliente);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al filtrar los clientes: " + e.getMessage());
+        }
+        return listaClientes;
+    }
 }

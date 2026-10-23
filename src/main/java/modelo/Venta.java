@@ -131,22 +131,28 @@ public class Venta {
     }
 
     //Metodo para calcular los totales generales
-    public void calcularTotales(){
+    public void calcularTotales() {
         BigDecimal subtotalAcumulado = BigDecimal.ZERO;
-        for (DetalleVenta detalle : detallesVenta){
+        BigDecimal ivaAcumulado = BigDecimal.ZERO;
+
+        for (DetalleVenta detalle : detallesVenta) {
             subtotalAcumulado = subtotalAcumulado.add(detalle.getSubtotal());
+            ivaAcumulado = ivaAcumulado.add(detalle.getIvaLinea());
         }
-        this.subtotalGeneral = subtotalAcumulado;
 
-        //Calcular el Iva y el total final
-        this.totalIva = this.subtotalGeneral.multiply(new BigDecimal("0.12"));
+        this.subtotalGeneral = subtotalAcumulado.setScale(2, java.math.RoundingMode.HALF_UP);
+        this.totalIva = ivaAcumulado.setScale(2, java.math.RoundingMode.HALF_UP);
 
-        //Descuentos nulos
-        BigDecimal descuentos = (this.totalDescuentos != null) ? this.totalDescuentos : BigDecimal.ZERO;
+        BigDecimal descuentos = this.totalDescuentos != null
+                ? this.totalDescuentos
+                : BigDecimal.ZERO;
 
-        //Calculo total final: subtotal + iva - descuentos
-        this.totalFinal = this.subtotalGeneral.add(this.totalIva).subtract(descuentos);
+        this.totalFinal = this.subtotalGeneral
+                .add(this.totalIva)
+                .subtract(descuentos)
+                .setScale(2, java.math.RoundingMode.HALF_UP);
     }
+    
 
     //Método para validar si hay existencia suficiente en el inventario
     public boolean validarExistenciaDisponible() {
