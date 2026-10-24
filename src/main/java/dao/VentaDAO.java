@@ -18,6 +18,9 @@ public class VentaDAO {
 
     //CREATE
     public boolean insertarVenta(Venta venta) {
+        if (venta == null || venta.getUsuarioResponsable() == null) {
+            return false;
+        }
         String sqlVenta = "INSERT INTO venta (numero_venta, fecha, codigo_cliente, id_usuario_responsable, forma_pago, subtotal_general, total_descuentos, total_iva, total_final) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO detalle_venta (numero_venta, codigo_producto, cantidad_solicitada, precio_unitario, subtotal, iva_linea, total_linea) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -25,14 +28,19 @@ public class VentaDAO {
 
         try {
             conexion = conexionBD.obtenerConexion();
-            if (conexion == null) return false;
+            if (conexion == null) {
+                return false;
+            }
             conexion.setAutoCommit(false);
 
             try (PreparedStatement pstmtVenta = conexion.prepareStatement(sqlVenta)) {
                 pstmtVenta.setString(1, venta.getNumeroVenta());
                 pstmtVenta.setDate(2, java.sql.Date.valueOf(venta.getFecha()));
                 pstmtVenta.setString(3, venta.getCliente() != null ? venta.getCliente().getCodigoCliente() : "CF");
-                pstmtVenta.setInt(4, venta.getUsuarioResponsable() != null ? venta.getUsuarioResponsable().getIdUsuario() : 1);
+                pstmtVenta.setInt(
+                        4,
+                        venta.getUsuarioResponsable().getIdUsuario()
+                );
                 pstmtVenta.setString(5, venta.getFormaPago().name());
                 pstmtVenta.setBigDecimal(6, venta.getSubtotalGeneral());
                 pstmtVenta.setBigDecimal(7, venta.getTotalDescuentos());
@@ -58,21 +66,21 @@ public class VentaDAO {
             }
             conexion.commit();
             return true;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Error al registrar la venta (Rollback ejecutado): " + e.getMessage());
-            if (conexion != null){
+            if (conexion != null) {
                 try {
                     conexion.rollback(); //revetir cambios por si hay fallo
-                } catch (SQLException ex){
+                } catch (SQLException ex) {
                     System.out.println("Error al realizar rollback:" + ex.getMessage());
                 }
             }
         } finally {
-            if(conexion != null){
-                try{
+            if (conexion != null) {
+                try {
                     conexion.setAutoCommit(true);
                     conexion.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     System.out.println("Error al cerrar la conexión:" + e.getMessage());
                 }
             }
@@ -81,17 +89,15 @@ public class VentaDAO {
     }
 
     //READ
-    public List<Venta> listarVentas(){
+    public List<Venta> listarVentas() {
         List<Venta> listaVentas = new ArrayList<>();
         String sql = "SELECT * FROM venta";
 
-        try(Connection conexion = conexionBD.obtenerConexion();
-            Statement stmt = conexion.createStatement();
-            ResultSet rs = stmt.executeQuery(sql)){
+        try (Connection conexion = conexionBD.obtenerConexion(); Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()){
+            while (rs.next()) {
                 String numVenta = rs.getString("numero_venta");
-                Date fechaSql= rs.getDate("fecha");
+                Date fechaSql = rs.getDate("fecha");
                 LocalDate fecha = fechaSql != null ? fechaSql.toLocalDate() : LocalDate.now();
 
                 BigDecimal subtotalGeneral = rs.getBigDecimal("subtotal_general");
@@ -123,18 +129,17 @@ public class VentaDAO {
                 listaVentas.add(venta);
                 System.out.println("Venta encontrada -> No:" + numVenta + ",Fecha:" + fecha + ",Total:" + totalFinal);
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Error al listar las ventas:" + e.getMessage());
         }
         return listaVentas;
     }
 
     //UPDATE
-    public boolean actualizarVenta(Venta venta){
+    public boolean actualizarVenta(Venta venta) {
         String sql = "UPDATE venta SET forma_pago = ?, subtotal_general = ?, total_descuentos = ?, total_iva = ?, total_final = ? WHERE numero_venta = ?";
 
-        try (Connection conexion = conexionBD.obtenerConexion();
-            PreparedStatement pstmt = conexion.prepareStatement(sql)){
+        try (Connection conexion = conexionBD.obtenerConexion(); PreparedStatement pstmt = conexion.prepareStatement(sql)) {
             pstmt.setString(1, venta.getFormaPago().name());
             pstmt.setBigDecimal(2, venta.getSubtotalGeneral());
             pstmt.setBigDecimal(3, venta.getTotalDescuentos());
@@ -144,49 +149,51 @@ public class VentaDAO {
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Error al actualizar la venta:" + e.getMessage());
             return false;
         }
     }
 
     //DELETE
-    public boolean eliminarVenta(String numeroVenta){
+    public boolean eliminarVenta(String numeroVenta) {
         String sqlDetalles = "DELETE FROM detalle_venta WHERE numero_venta= ?";
         String sqlVenta = "DELETE FROM venta WHERE numero_venta = ?";
 
         Connection conexion = null;
-        try{
+        try {
             conexion = conexionBD.obtenerConexion();
-            if(conexion == null) return false;
+            if (conexion == null) {
+                return false;
+            }
             conexion.setAutoCommit(false);
 
-            try(PreparedStatement pstmtDetalles = conexion.prepareStatement(sqlDetalles)){
+            try (PreparedStatement pstmtDetalles = conexion.prepareStatement(sqlDetalles)) {
                 pstmtDetalles.setString(1, numeroVenta);
                 pstmtDetalles.executeUpdate();
             }
 
-            try(PreparedStatement pstmtVenta = conexion.prepareStatement(sqlVenta)){
+            try (PreparedStatement pstmtVenta = conexion.prepareStatement(sqlVenta)) {
                 pstmtVenta.setString(1, numeroVenta);
                 pstmtVenta.executeUpdate();
             }
             conexion.commit();
             return true;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Error al eliminar la venta (Rollback ejecutado):" + e.getMessage());
-            if (conexion != null){
-                try{
+            if (conexion != null) {
+                try {
                     conexion.rollback();
-                } catch (SQLException ex){
+                } catch (SQLException ex) {
                     System.out.println("Error al hacer rollback:" + ex.getMessage());
                 }
             }
         } finally {
-            if (conexion != null){
-                try{
+            if (conexion != null) {
+                try {
                     conexion.setAutoCommit(true);
                     conexion.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     System.out.println("Error al cerrar conexion:" + e.getMessage());
                 }
             }

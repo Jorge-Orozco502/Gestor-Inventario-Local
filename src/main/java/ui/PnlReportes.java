@@ -14,10 +14,14 @@ import org.openpdf.text.DocumentException;
 
 public class PnlReportes extends javax.swing.JPanel {
 
-    /**
-     * Creates new form PnlReportesEmpleado
-     */
+    private modelo.Usuario usuarioActual;
+
     public PnlReportes() {
+        this(null);
+    }
+
+    public PnlReportes(modelo.Usuario usuarioActual) {
+        this.usuarioActual = usuarioActual;
         initComponents();
         configurarBotonesReportes();
     }
@@ -123,7 +127,8 @@ public class PnlReportes extends javax.swing.JPanel {
                     reporteDAO.ventas(
                             desdeVentas,
                             hastaVentas,
-                            String.valueOf(cmbMetodoPago.getSelectedItem())
+                            String.valueOf(cmbMetodoPago.getSelectedItem()),
+                            usuarioActual == null ? null : usuarioActual.getIdUsuario()
                     )
             );
 
@@ -131,7 +136,8 @@ public class PnlReportes extends javax.swing.JPanel {
                     jTable4,
                     reporteDAO.productosMasVendidos(
                             desdeProductos,
-                            hastaProductos
+                            hastaProductos,
+                            usuarioActual == null ? null : usuarioActual.getIdUsuario()
                     )
             );
 

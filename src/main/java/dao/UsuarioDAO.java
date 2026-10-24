@@ -15,71 +15,69 @@ public class UsuarioDAO {
 
     // CREATE (Inserta el usuario y cifra la contraseña automáticamente con BCrypt)
     public boolean insertarUsuario(Usuario usuario, String tipoUsuario) {
-    if (usuario == null || tipoUsuario == null ||
-        tipoUsuario.trim().isEmpty()) {
-        return false;
-    }
-
-    String passwordPlano = usuario.getContrasenaHash();
-    System.out.println("DEBUG: contraseña recibida: " + passwordPlano);
-
-    if (passwordPlano == null || passwordPlano.isEmpty()) {
-        return false;
-    }
-
-    // Generar el hash con jBCrypt
-    String passwordHash = BCrypt.hashpw(
-        passwordPlano,
-        BCrypt.gensalt(10)
-    );
-
-    String sql = "INSERT INTO usuario "
-        + "(tipo_usuario, nombre_usuario, contrasena_hash, "
-        + "nombre_completo, activo, fecha_creacion) "
-        + "VALUES (?, ?, ?, ?, ?, ?)";
-
-    try (Connection conexion = conexionBD.obtenerConexion()) {
-
-        if (conexion == null) {
-            System.out.println("No se pudo conectar a la base de datos.");
+        if (usuario == null || tipoUsuario == null
+                || tipoUsuario.trim().isEmpty()) {
             return false;
         }
 
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+        String passwordPlano = usuario.getContrasenaHash();
+        System.out.println("DEBUG: contraseña recibida: " + passwordPlano);
 
-            pstmt.setString(1, tipoUsuario.trim().toUpperCase());
-            pstmt.setString(2, usuario.getNombreUsuario());
-            pstmt.setString(3, passwordHash);
-            pstmt.setString(4, usuario.getNombreCompleto());
-            pstmt.setBoolean(5, usuario.isActivo());
-
-            LocalDate fecha = usuario.getFechaCreacion() != null
-                ? usuario.getFechaCreacion()
-                : LocalDate.now();
-
-            pstmt.setDate(6, java.sql.Date.valueOf(fecha));
-
-            int filasAfectadas = pstmt.executeUpdate();
-
-            return filasAfectadas > 0;
+        if (passwordPlano == null || passwordPlano.isEmpty()) {
+            return false;
         }
 
-    } catch (SQLException e) {
-        System.out.println(
-            "Error al registrar el usuario: " + e.getMessage()
+        // Generar el hash con jBCrypt
+        String passwordHash = BCrypt.hashpw(
+                passwordPlano,
+                BCrypt.gensalt(10)
         );
-        return false;
+
+        String sql = "INSERT INTO usuario "
+                + "(tipo_usuario, nombre_usuario, contrasena_hash, "
+                + "nombre_completo, activo, fecha_creacion) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conexion = conexionBD.obtenerConexion()) {
+
+            if (conexion == null) {
+                System.out.println("No se pudo conectar a la base de datos.");
+                return false;
+            }
+
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+
+                pstmt.setString(1, tipoUsuario.trim().toUpperCase());
+                pstmt.setString(2, usuario.getNombreUsuario());
+                pstmt.setString(3, passwordHash);
+                pstmt.setString(4, usuario.getNombreCompleto());
+                pstmt.setBoolean(5, usuario.isActivo());
+
+                LocalDate fecha = usuario.getFechaCreacion() != null
+                        ? usuario.getFechaCreacion()
+                        : LocalDate.now();
+
+                pstmt.setDate(6, java.sql.Date.valueOf(fecha));
+
+                int filasAfectadas = pstmt.executeUpdate();
+
+                return filasAfectadas > 0;
+            }
+
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al registrar el usuario: " + e.getMessage()
+            );
+            return false;
+        }
     }
-}
 
     // READ (Listar todos)
     public List<Usuario> listarUsuarios() {
         List<Usuario> listaUsuarios = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
-        try (Connection conexion = conexionBD.obtenerConexion();
-             Statement stmt = conexion.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conexion = conexionBD.obtenerConexion(); Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 int idUsuario = rs.getInt("id_usuario");
@@ -114,10 +112,11 @@ public class UsuarioDAO {
     public Usuario buscarUsuarioPorId(int idUsuario) {
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
-        try (Connection conexion = conexionBD.obtenerConexion();
-             PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+        try (Connection conexion = conexionBD.obtenerConexion(); PreparedStatement pstmt = conexion.prepareStatement(sql)) {
 
-            if (conexion == null) return null;
+            if (conexion == null) {
+                return null;
+            }
             pstmt.setInt(1, idUsuario);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -152,86 +151,87 @@ public class UsuarioDAO {
 
     // UPDATE (Actualiza el usuario asegurando que si cambia la contraseña, también se cifre)
     public boolean actualizarUsuario(Usuario usuario) {
-    if (usuario == null) {
-        return false;
-    }
-
-    String passwordIngresada = usuario.getContrasenaHash();
-
-    String sql;
-
-    if (passwordIngresada != null && !passwordIngresada.isEmpty()) {
-        // Se ingresó una contraseña nueva.
-        sql = "UPDATE usuario SET "
-            + "tipo_usuario = ?, "
-            + "nombre_usuario = ?, "
-            + "contrasena_hash = ?, "
-            + "nombre_completo = ?, "
-            + "activo = ? "
-            + "WHERE id_usuario = ?";
-    } else {
-        // Campo vacío: conservar la contraseña actual.
-        sql = "UPDATE usuario SET "
-            + "tipo_usuario = ?, "
-            + "nombre_usuario = ?, "
-            + "nombre_completo = ?, "
-            + "activo = ? "
-            + "WHERE id_usuario = ?";
-    }
-
-    try (Connection conexion = conexionBD.obtenerConexion()) {
-        if (conexion == null) {
+        if (usuario == null) {
             return false;
         }
 
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            int posicion = 1;
+        String passwordIngresada = usuario.getContrasenaHash();
 
-            String tipoUsuario;
+        String sql;
 
-            if (usuario instanceof Administrador) {
-                tipoUsuario = "ADMINISTRADOR";
-            } else if (usuario instanceof Empleado) {
-                tipoUsuario = "EMPLEADO";
-            } else {
+        if (passwordIngresada != null && !passwordIngresada.isEmpty()) {
+            // Se ingresó una contraseña nueva.
+            sql = "UPDATE usuario SET "
+                    + "tipo_usuario = ?, "
+                    + "nombre_usuario = ?, "
+                    + "contrasena_hash = ?, "
+                    + "nombre_completo = ?, "
+                    + "activo = ? "
+                    + "WHERE id_usuario = ?";
+        } else {
+            // Campo vacío: conservar la contraseña actual.
+            sql = "UPDATE usuario SET "
+                    + "tipo_usuario = ?, "
+                    + "nombre_usuario = ?, "
+                    + "nombre_completo = ?, "
+                    + "activo = ? "
+                    + "WHERE id_usuario = ?";
+        }
+
+        try (Connection conexion = conexionBD.obtenerConexion()) {
+            if (conexion == null) {
                 return false;
             }
 
-            pstmt.setString(posicion++, tipoUsuario);
-            pstmt.setString(posicion++, usuario.getNombreUsuario());
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+                int posicion = 1;
 
-            if (passwordIngresada != null && !passwordIngresada.isEmpty()) {
-                String passwordHash = BCrypt.hashpw(
-                    passwordIngresada,
-                    BCrypt.gensalt(10)
-                );
+                String tipoUsuario;
 
-                pstmt.setString(posicion++, passwordHash);
+                if (usuario instanceof Administrador) {
+                    tipoUsuario = "ADMINISTRADOR";
+                } else if (usuario instanceof Empleado) {
+                    tipoUsuario = "EMPLEADO";
+                } else {
+                    return false;
+                }
+
+                pstmt.setString(posicion++, tipoUsuario);
+                pstmt.setString(posicion++, usuario.getNombreUsuario());
+
+                if (passwordIngresada != null && !passwordIngresada.isEmpty()) {
+                    String passwordHash = BCrypt.hashpw(
+                            passwordIngresada,
+                            BCrypt.gensalt(10)
+                    );
+
+                    pstmt.setString(posicion++, passwordHash);
+                }
+
+                pstmt.setString(posicion++, usuario.getNombreCompleto());
+                pstmt.setBoolean(posicion++, usuario.isActivo());
+                pstmt.setInt(posicion, usuario.getIdUsuario());
+
+                return pstmt.executeUpdate() > 0;
             }
 
-            pstmt.setString(posicion++, usuario.getNombreCompleto());
-            pstmt.setBoolean(posicion++, usuario.isActivo());
-            pstmt.setInt(posicion, usuario.getIdUsuario());
-
-            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al actualizar el usuario: " + e.getMessage()
+            );
+            return false;
         }
-
-    } catch (SQLException e) {
-        System.out.println(
-            "Error al actualizar el usuario: " + e.getMessage()
-        );
-        return false;
-    }
     }
 
     // DELETE
     public boolean eliminarUsuario(int idUsuario) {
         String sql = "DELETE FROM usuario WHERE id_usuario = ?";
 
-        try (Connection conexion = conexionBD.obtenerConexion();
-             PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+        try (Connection conexion = conexionBD.obtenerConexion(); PreparedStatement pstmt = conexion.prepareStatement(sql)) {
 
-            if (conexion == null) return false;
+            if (conexion == null) {
+                return false;
+            }
 
             pstmt.setInt(1, idUsuario);
             int filasAfectadas = pstmt.executeUpdate();
@@ -241,113 +241,179 @@ public class UsuarioDAO {
             return false;
         }
     }
-    
+
     // VALIDAR USUARIO (Compara la contraseña plana escrita en el login contra el hash de la BD de forma segura)
-    
-public boolean validarUsuario(String nombreUsuario, String contrasenaIngresada) {
-    String sql = "SELECT contrasena_hash FROM usuario "
-               + "WHERE nombre_usuario = ? AND activo = 1";
+    public boolean validarUsuario(String nombreUsuario, String contrasenaIngresada) {
+        String sql = "SELECT contrasena_hash FROM usuario "
+                + "WHERE nombre_usuario = ? AND activo = 1";
 
-    if (nombreUsuario == null || contrasenaIngresada == null) {
-        return false;
-    }
-
-    try (Connection conexion = conexionBD.obtenerConexion()) {
-        if (conexion == null) {
+        if (nombreUsuario == null || contrasenaIngresada == null) {
             return false;
         }
 
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setString(1, nombreUsuario.trim());
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (!rs.next()) {
-                    return false;
-                }
-
-                String hashAlmacenado =
-                    rs.getString("contrasena_hash");
-
-                if (hashAlmacenado == null ||
-                    hashAlmacenado.isEmpty()) {
-                    return false;
-                }
-
-                boolean coincide = BCrypt.checkpw(
-                    contrasenaIngresada,
-                    hashAlmacenado
-                );
-
-                System.out.println(
-                    "Contraseña correcta: " + coincide
-                );
-
-                return coincide;
+        try (Connection conexion = conexionBD.obtenerConexion()) {
+            if (conexion == null) {
+                return false;
             }
+
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+                pstmt.setString(1, nombreUsuario.trim());
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (!rs.next()) {
+                        return false;
+                    }
+
+                    String hashAlmacenado
+                            = rs.getString("contrasena_hash");
+
+                    if (hashAlmacenado == null
+                            || hashAlmacenado.isEmpty()) {
+                        return false;
+                    }
+
+                    boolean coincide = BCrypt.checkpw(
+                            contrasenaIngresada,
+                            hashAlmacenado
+                    );
+
+                    System.out.println(
+                            "Contraseña correcta: " + coincide
+                    );
+
+                    return coincide;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al validar usuario: " + e.getMessage()
+            );
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.out.println(
+                    "Hash BCrypt inválido: " + e.getMessage()
+            );
+            return false;
         }
-    } catch (SQLException e) {
-        System.out.println(
-            "Error al validar usuario: " + e.getMessage()
-        );
-        return false;
-    } catch (IllegalArgumentException e) {
-        System.out.println(
-            "Hash BCrypt inválido: " + e.getMessage()
-        );
-        return false;
     }
-}
-public void probarHash() {
-    String hash = "$2a$10$yMQIyYT.93tcDUORoAu2WO/GcSdCC5/4BUDJxaxhRsqYmCcLSZl3.";
 
-    System.out.println(
-        "¿La contraseña es jos?: " +
-        BCrypt.checkpw("jos", hash)
-    );
-}
-public void probarBCrypt() {
-    String contrasena = "jos";
+    public void probarHash() {
+        String hash = "$2a$10$yMQIyYT.93tcDUORoAu2WO/GcSdCC5/4BUDJxaxhRsqYmCcLSZl3.";
 
-    String hash = BCrypt.hashpw(
-        contrasena,
-        BCrypt.gensalt(10)
-    );
+        System.out.println(
+                "¿La contraseña es jos?: "
+                + BCrypt.checkpw("jos", hash)
+        );
+    }
 
-    System.out.println("Hash generado: " + hash);
-    System.out.println(
-        "¿Coincide con jos?: " +
-        BCrypt.checkpw(contrasena, hash)
-    );
-}
-public String obtenerTipoUsuario(String nombreUsuario, String contrasena) {
-    String sql = "SELECT tipo_usuario FROM usuario "
-               + "WHERE nombre_usuario = ? AND activo = TRUE";
+    public void probarBCrypt() {
+        String contrasena = "jos";
 
-    try (Connection conexion = conexionBD.obtenerConexion()) {
-        if (conexion == null) {
-            return null;
-        }
+        String hash = BCrypt.hashpw(
+                contrasena,
+                BCrypt.gensalt(10)
+        );
 
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setString(1, nombreUsuario);
+        System.out.println("Hash generado: " + hash);
+        System.out.println(
+                "¿Coincide con jos?: "
+                + BCrypt.checkpw(contrasena, hash)
+        );
+    }
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String tipoUsuario = rs.getString("tipo_usuario");
+    public String obtenerTipoUsuario(String nombreUsuario, String contrasena) {
+        String sql = "SELECT tipo_usuario FROM usuario "
+                + "WHERE nombre_usuario = ? AND activo = TRUE";
 
-                    if (validarUsuario(nombreUsuario, contrasena)) {
-                        return tipoUsuario;
+        try (Connection conexion = conexionBD.obtenerConexion()) {
+            if (conexion == null) {
+                return null;
+            }
+
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+                pstmt.setString(1, nombreUsuario);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String tipoUsuario = rs.getString("tipo_usuario");
+
+                        if (validarUsuario(nombreUsuario, contrasena)) {
+                            return tipoUsuario;
+                        }
                     }
                 }
             }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el tipo de usuario: "
+                    + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println("Error al obtener el tipo de usuario: "
-                + e.getMessage());
+
+        return null;
     }
 
-    return null;
-}
+    public Usuario autenticarUsuario(String nombreUsuario, String contrasena) {
+        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()
+                || contrasena == null || contrasena.isEmpty()) {
+            return null;
+        }
 
+        String sql = "SELECT id_usuario, tipo_usuario, nombre_usuario, "
+                + "contrasena_hash, nombre_completo, activo, fecha_creacion "
+                + "FROM usuario "
+                + "WHERE nombre_usuario = ? AND activo = TRUE";
+
+        try (Connection cn = conexionBD.obtenerConexion()) {
+            if (cn == null) {
+                return null;
+            }
+
+            try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                ps.setString(1, nombreUsuario.trim());
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        return null;
+                    }
+
+                    String hash = rs.getString("contrasena_hash");
+
+                    if (hash == null || !BCrypt.checkpw(contrasena, hash)) {
+                        return null;
+                    }
+
+                    String tipo = rs.getString("tipo_usuario");
+                    String usuarioBD = rs.getString("nombre_usuario");
+                    String nombreCompleto = rs.getString("nombre_completo");
+
+                    Usuario usuario;
+
+                    if ("ADMINISTRADOR".equalsIgnoreCase(tipo)) {
+                        usuario = new Administrador(
+                                usuarioBD, hash, nombreCompleto
+                        );
+                    } else if ("EMPLEADO".equalsIgnoreCase(tipo)) {
+                        usuario = new Empleado(
+                                usuarioBD, hash, nombreCompleto
+                        );
+                    } else {
+                        return null;
+                    }
+
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+                    usuario.setActivo(rs.getBoolean("activo"));
+
+                    Date fecha = rs.getDate("fecha_creacion");
+                    if (fecha != null) {
+                        usuario.setFechaCreacion(fecha.toLocalDate());
+                    }
+
+                    return usuario;
+                }
+            }
+        } catch (SQLException | IllegalArgumentException ex) {
+            System.out.println("Error al autenticar: " + ex.getMessage());
+            return null;
+        }
+    }
 
 }

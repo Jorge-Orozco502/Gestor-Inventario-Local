@@ -15,17 +15,21 @@ public class ReporteDAO {
     public List<Object[]> ventas(
             LocalDate desde,
             LocalDate hasta,
-            String formaPago) throws SQLException {
+            String formaPago,
+            Integer idUsuarioFiltro) throws SQLException {
 
         String sql = "SELECT v.numero_venta, v.fecha, c.nombre AS cliente, "
                 + "v.subtotal_general, v.total_descuentos, v.total_iva, v.total_final "
                 + "FROM venta v "
                 + "INNER JOIN cliente c ON c.codigo = v.codigo_cliente "
-                + "WHERE v.fecha BETWEEN ? AND "
+                + "WHERE v.fecha BETWEEN ? AND ? "
+                + (idUsuarioFiltro == null
+                        ? ""
+                        : "AND v.id_usuario_responsable = ? ")
                 + (formaPago.equalsIgnoreCase("TODOS")
-                ? "?"
-                : "? AND v.forma_pago = ?")
-                + " ORDER BY v.fecha DESC, v.numero_venta DESC";
+                ? ""
+                : "AND v.forma_pago = ? ")
+                + "ORDER BY v.fecha DESC, v.numero_venta DESC";
 
         List<Object[]> filas = new ArrayList<>();
 
@@ -35,11 +39,17 @@ public class ReporteDAO {
             }
 
             try (PreparedStatement ps = cn.prepareStatement(sql)) {
-                ps.setDate(1, Date.valueOf(desde));
-                ps.setDate(2, Date.valueOf(hasta));
+                int indice = 1;
+
+                ps.setDate(indice++, Date.valueOf(desde));
+                ps.setDate(indice++, Date.valueOf(hasta));
+
+                if (idUsuarioFiltro != null) {
+                    ps.setInt(indice++, idUsuarioFiltro);
+                }
 
                 if (!formaPago.equalsIgnoreCase("TODOS")) {
-                    ps.setString(3, formaPago);
+                    ps.setString(indice, formaPago);
                 }
 
                 try (ResultSet rs = ps.executeQuery()) {
@@ -63,7 +73,8 @@ public class ReporteDAO {
 
     public List<Object[]> productosMasVendidos(
             LocalDate desde,
-            LocalDate hasta) throws SQLException {
+            LocalDate hasta,
+            Integer idUsuarioFiltro) throws SQLException {
 
         String sql = "SELECT p.nombre AS producto, "
                 + "SUM(d.cantidad_solicitada) AS cantidad, "
@@ -72,6 +83,9 @@ public class ReporteDAO {
                 + "INNER JOIN venta v ON v.numero_venta = d.numero_venta "
                 + "INNER JOIN producto p ON p.codigo = d.codigo_producto "
                 + "WHERE v.fecha BETWEEN ? AND ? "
+                + (idUsuarioFiltro == null
+                        ? ""
+                        : "AND v.id_usuario_responsable = ? ")
                 + "GROUP BY p.codigo, p.nombre "
                 + "ORDER BY cantidad DESC, total DESC";
 
@@ -85,6 +99,9 @@ public class ReporteDAO {
             try (PreparedStatement ps = cn.prepareStatement(sql)) {
                 ps.setDate(1, Date.valueOf(desde));
                 ps.setDate(2, Date.valueOf(hasta));
+                if (idUsuarioFiltro != null) {
+                    ps.setInt(3, idUsuarioFiltro);
+                }
 
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

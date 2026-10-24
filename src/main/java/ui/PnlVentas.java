@@ -8,92 +8,99 @@ public class PnlVentas extends javax.swing.JPanel {
     private final dao.ClienteDAO clienteDAO = new dao.ClienteDAO();
     private final dao.UsuarioDAO usuarioDAO = new dao.UsuarioDAO();
 
+    private modelo.Usuario usuarioActual;
+
     public PnlVentas() {
+        this(null);
+    }
+
+    public PnlVentas(modelo.Usuario usuarioActual) {
+        this.usuarioActual = usuarioActual;
         initComponents();
         configurarTablaDetalle();
         cargarDatosDesdeBD();
     }
-    
+
     //metodo para el comprobante de la venta hecha al cliente
     private void configurarTablaDetalle() {
-    javax.swing.table.DefaultTableModel modeloTabla =
-            new javax.swing.table.DefaultTableModel(
-                    new Object[][]{},
-                    new String[]{
-                        "Código producto",
-                        "Cantidad",
-                        "Precio unitario",
-                        "Subtotal",
-                        "IVA",
-                        "Total"
-                    }
-            ) {
-                @Override
-                public boolean isCellEditable(int fila, int columna) {
-                    return false;
-                }
-            };
+        javax.swing.table.DefaultTableModel modeloTabla
+                = new javax.swing.table.DefaultTableModel(
+                        new Object[][]{},
+                        new String[]{
+                            "Código producto",
+                            "Cantidad",
+                            "Precio unitario",
+                            "Subtotal",
+                            "IVA",
+                            "Total"
+                        }
+                ) {
+            @Override
+            public boolean isCellEditable(int fila, int columna) {
+                return false;
+            }
+        };
 
-    tblDetalleVenta.setModel(modeloTabla);
-}
-   
+        tblDetalleVenta.setModel(modeloTabla);
+    }
+
     //METODO PARA APLICAR EL DESCUENTO AL PRODUCTO
     private void aplicarDescuentoSeleccionado() {
-    int filaVista = tblDetalleVenta.getSelectedRow();
+        int filaVista = tblDetalleVenta.getSelectedRow();
 
-    if (filaVista < 0) {
-        javax.swing.JOptionPane.showMessageDialog(
-                this, "Selecciona el producto al que aplicarás el descuento."
-        );
-        return;
-    }
-
-    try {
-        java.math.BigDecimal porcentaje =
-                new java.math.BigDecimal(jTextField2.getText().trim());
-
-        if (porcentaje.compareTo(java.math.BigDecimal.ZERO) < 0
-                || porcentaje.compareTo(new java.math.BigDecimal("100")) > 0) {
-            throw new NumberFormatException();
+        if (filaVista < 0) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this, "Selecciona el producto al que aplicarás el descuento."
+            );
+            return;
         }
 
-        int fila = tblDetalleVenta.convertRowIndexToModel(filaVista);
-        javax.swing.table.DefaultTableModel model =
-                (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
+        try {
+            java.math.BigDecimal porcentaje
+                    = new java.math.BigDecimal(jTextField2.getText().trim());
 
-        java.math.BigDecimal precio =
-                new java.math.BigDecimal(model.getValueAt(fila, 2).toString());
-        java.math.BigDecimal cantidad =
-                new java.math.BigDecimal(model.getValueAt(fila, 1).toString());
+            if (porcentaje.compareTo(java.math.BigDecimal.ZERO) < 0
+                    || porcentaje.compareTo(new java.math.BigDecimal("100")) > 0) {
+                throw new NumberFormatException();
+            }
 
-        // El precio unitario incluye IVA.
-        java.math.BigDecimal totalOriginal = precio.multiply(cantidad)
-                .setScale(2, java.math.RoundingMode.HALF_UP);
+            int fila = tblDetalleVenta.convertRowIndexToModel(filaVista);
+            javax.swing.table.DefaultTableModel model
+                    = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
 
-        java.math.BigDecimal descuento = totalOriginal
-                .multiply(porcentaje)
-                .divide(new java.math.BigDecimal("100"), 2,
-                        java.math.RoundingMode.HALF_UP);
+            java.math.BigDecimal precio
+                    = new java.math.BigDecimal(model.getValueAt(fila, 2).toString());
+            java.math.BigDecimal cantidad
+                    = new java.math.BigDecimal(model.getValueAt(fila, 1).toString());
 
-        java.math.BigDecimal totalConDescuento = totalOriginal.subtract(descuento);
-        java.math.BigDecimal subtotalConDescuento = totalConDescuento
-                .divide(new java.math.BigDecimal("1.12"), 2,
-                        java.math.RoundingMode.HALF_UP);
-        java.math.BigDecimal ivaConDescuento =
-                totalConDescuento.subtract(subtotalConDescuento);
+            // El precio unitario incluye IVA.
+            java.math.BigDecimal totalOriginal = precio.multiply(cantidad)
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
 
-        model.setValueAt(subtotalConDescuento, fila, 3);
-        model.setValueAt(ivaConDescuento, fila, 4);
-        model.setValueAt(totalConDescuento, fila, 5);
+            java.math.BigDecimal descuento = totalOriginal
+                    .multiply(porcentaje)
+                    .divide(new java.math.BigDecimal("100"), 2,
+                            java.math.RoundingMode.HALF_UP);
 
-        calcularTotalesYMontos();
+            java.math.BigDecimal totalConDescuento = totalOriginal.subtract(descuento);
+            java.math.BigDecimal subtotalConDescuento = totalConDescuento
+                    .divide(new java.math.BigDecimal("1.12"), 2,
+                            java.math.RoundingMode.HALF_UP);
+            java.math.BigDecimal ivaConDescuento
+                    = totalConDescuento.subtract(subtotalConDescuento);
 
-    } catch (NumberFormatException ex) {
-        javax.swing.JOptionPane.showMessageDialog(
-                this, "Escribe un porcentaje válido entre 0 y 100."
-        );
+            model.setValueAt(subtotalConDescuento, fila, 3);
+            model.setValueAt(ivaConDescuento, fila, 4);
+            model.setValueAt(totalConDescuento, fila, 5);
+
+            calcularTotalesYMontos();
+
+        } catch (NumberFormatException ex) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this, "Escribe un porcentaje válido entre 0 y 100."
+            );
+        }
     }
-}
 
     // Cargar combos y fecha actual desde MySQL
     private void cargarDatosDesdeBD() {
@@ -106,71 +113,80 @@ public class PnlVentas extends javax.swing.JPanel {
             cbCodigoCliente.addItem(c.getCodigoCliente());
         }
 
-        // Cargar Usuarios Responsables
+        // Empleado: solo puede registrar ventas a su propio nombre.
+        // Si usuarioActual es null, conserva la lista para el flujo
+        // que use el constructor sin parámetros.
         jComboBox3.removeAllItems();
-        java.util.List<modelo.Usuario> listaUsuarios = usuarioDAO.listarUsuarios();
-        for (modelo.Usuario u : listaUsuarios) {
-            jComboBox3.addItem(u.getNombreUsuario());
+
+        if (usuarioActual != null) {
+            jComboBox3.addItem(usuarioActual.getNombreUsuario());
+            jComboBox3.setSelectedIndex(0);
+            jComboBox3.setEnabled(false);
+        } else {
+            java.util.List<modelo.Usuario> listaUsuarios
+                    = usuarioDAO.listarUsuarios();
+
+            for (modelo.Usuario u : listaUsuarios) {
+                jComboBox3.addItem(u.getNombreUsuario());
+            }
         }
     }
 
     // Método auxiliar para calcular y refrescar totales
     private void calcularTotalesYMontos() {
-    try {
-        javax.swing.table.DefaultTableModel model =
-                (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
+        try {
+            javax.swing.table.DefaultTableModel model
+                    = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
 
-        java.math.BigDecimal subtotalAcumulado = java.math.BigDecimal.ZERO;
-        java.math.BigDecimal ivaAcumulado = java.math.BigDecimal.ZERO;
-        java.math.BigDecimal totalAcumulado = java.math.BigDecimal.ZERO;
-        java.math.BigDecimal descuentosAcumulados = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal subtotalAcumulado = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal ivaAcumulado = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal totalAcumulado = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal descuentosAcumulados = java.math.BigDecimal.ZERO;
 
-        for (int i = 0; i < model.getRowCount(); i++) {
-            java.math.BigDecimal cantidad =
-                    new java.math.BigDecimal(model.getValueAt(i, 1).toString());
-            java.math.BigDecimal precio =
-                    new java.math.BigDecimal(model.getValueAt(i, 2).toString());
+            for (int i = 0; i < model.getRowCount(); i++) {
+                java.math.BigDecimal cantidad
+                        = new java.math.BigDecimal(model.getValueAt(i, 1).toString());
+                java.math.BigDecimal precio
+                        = new java.math.BigDecimal(model.getValueAt(i, 2).toString());
 
-            java.math.BigDecimal subtotal =
-                    new java.math.BigDecimal(model.getValueAt(i, 3).toString());
-            java.math.BigDecimal iva =
-                    new java.math.BigDecimal(model.getValueAt(i, 4).toString());
-            java.math.BigDecimal total =
-                    new java.math.BigDecimal(model.getValueAt(i, 5).toString());
+                java.math.BigDecimal subtotal
+                        = new java.math.BigDecimal(model.getValueAt(i, 3).toString());
+                java.math.BigDecimal iva
+                        = new java.math.BigDecimal(model.getValueAt(i, 4).toString());
+                java.math.BigDecimal total
+                        = new java.math.BigDecimal(model.getValueAt(i, 5).toString());
 
-            java.math.BigDecimal totalOriginal = precio.multiply(cantidad)
-                    .setScale(2, java.math.RoundingMode.HALF_UP);
+                java.math.BigDecimal totalOriginal = precio.multiply(cantidad)
+                        .setScale(2, java.math.RoundingMode.HALF_UP);
 
-            java.math.BigDecimal descuentoLinea = totalOriginal.subtract(total);
+                java.math.BigDecimal descuentoLinea = totalOriginal.subtract(total);
 
-            subtotalAcumulado = subtotalAcumulado.add(subtotal);
-            ivaAcumulado = ivaAcumulado.add(iva);
-            totalAcumulado = totalAcumulado.add(total);
+                subtotalAcumulado = subtotalAcumulado.add(subtotal);
+                ivaAcumulado = ivaAcumulado.add(iva);
+                totalAcumulado = totalAcumulado.add(total);
 
-            if (descuentoLinea.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                descuentosAcumulados = descuentosAcumulados.add(descuentoLinea);
+                if (descuentoLinea.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    descuentosAcumulados = descuentosAcumulados.add(descuentoLinea);
+                }
             }
+
+            java.math.RoundingMode redondeo = java.math.RoundingMode.HALF_UP;
+
+            jTextField1.setText(subtotalAcumulado.setScale(2, redondeo).toPlainString());
+            jTextField3.setText(ivaAcumulado.setScale(2, redondeo).toPlainString());
+            jTextField4.setText(totalAcumulado.setScale(2, redondeo).toPlainString());
+
+            txtTotalDescuentos.setText(
+                    descuentosAcumulados.setScale(2, redondeo).toPlainString()
+            );
+            txtTotalFinal.setText(totalAcumulado.setScale(2, redondeo).toPlainString());
+
+        } catch (Exception e) {
+            System.err.println("Error al calcular montos: " + e.getMessage());
         }
-
-        java.math.RoundingMode redondeo = java.math.RoundingMode.HALF_UP;
-
-        jTextField1.setText(subtotalAcumulado.setScale(2, redondeo).toPlainString());
-        jTextField3.setText(ivaAcumulado.setScale(2, redondeo).toPlainString());
-        jTextField4.setText(totalAcumulado.setScale(2, redondeo).toPlainString());
-
-        txtTotalDescuentos.setText(
-                descuentosAcumulados.setScale(2, redondeo).toPlainString()
-        );
-        txtTotalFinal.setText(totalAcumulado.setScale(2, redondeo).toPlainString());
-
-    } catch (Exception e) {
-        System.err.println("Error al calcular montos: " + e.getMessage());
     }
-}
-    
-    
-    
- @SuppressWarnings("unchecked")
+
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -539,96 +555,94 @@ public class PnlVentas extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
- 
+
     private void btnAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarProductoActionPerformed
-     // 1. Obtener la lista completa de productos desde la BD
-    java.util.List<modelo.Producto> lista = productoDAO.listarProductos();
-    
-    if (lista == null || lista.isEmpty()) {
-        javax.swing.JOptionPane.showMessageDialog(this, "No hay productos registrados en la base de datos.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+        // 1. Obtener la lista completa de productos desde la BD
+        java.util.List<modelo.Producto> lista = productoDAO.listarProductos();
 
-    // 2. Crear un arreglo con los códigos y nombres de los productos
-    String[] opciones = new String[lista.size()];
-    for (int i = 0; i < lista.size(); i++) {
-        opciones[i] = lista.get(i).getCodigo() + " - " + lista.get(i).getNombre();
-    }
+        if (lista == null || lista.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No hay productos registrados en la base de datos.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    // 3. Mostrar un combo box interactivo para seleccionar el producto
-    String seleccion = (String) javax.swing.JOptionPane.showInputDialog(
-            this,
-            "Seleccione un Producto de la BD:",
-            "Agregar Producto",
-            javax.swing.JOptionPane.QUESTION_MESSAGE,
-            null,
-            opciones,
-            opciones[0]
-    );
+        // 2. Crear un arreglo con los códigos y nombres de los productos
+        String[] opciones = new String[lista.size()];
+        for (int i = 0; i < lista.size(); i++) {
+            opciones[i] = lista.get(i).getCodigo() + " - " + lista.get(i).getNombre();
+        }
 
-    if (seleccion != null) {
-        // Extraer el código (lo que está antes del guión " - ")
-        String codIngresado = seleccion.split(" - ")[0].trim();
-        modelo.Producto productoBD = productoDAO.buscarProductoPorCodigo(codIngresado);
-
-        if (productoBD != null) {
-           String cantStr = javax.swing.JOptionPane.showInputDialog(
-        this,
-        "Cantidad a llevar:",
-        "1.0"
+        // 3. Mostrar un combo box interactivo para seleccionar el producto
+        String seleccion = (String) javax.swing.JOptionPane.showInputDialog(
+                this,
+                "Seleccione un Producto de la BD:",
+                "Agregar Producto",
+                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
         );
 
-        if (cantStr == null) {
-            return; // El usuario canceló.
+        if (seleccion != null) {
+            // Extraer el código (lo que está antes del guión " - ")
+            String codIngresado = seleccion.split(" - ")[0].trim();
+            modelo.Producto productoBD = productoDAO.buscarProductoPorCodigo(codIngresado);
+
+            if (productoBD != null) {
+                String cantStr = javax.swing.JOptionPane.showInputDialog(
+                        this,
+                        "Cantidad a llevar:",
+                        "1.0"
+                );
+
+                if (cantStr == null) {
+                    return; // El usuario canceló.
+                }
+
+                double cantidad;
+
+                try {
+                    cantidad = Double.parseDouble(cantStr.trim());
+                } catch (NumberFormatException ex) {
+                    javax.swing.JOptionPane.showMessageDialog(
+                            this,
+                            "Escribe una cantidad numérica válida."
+                    );
+                    return;
+                }
+
+                if (!Double.isFinite(cantidad) || cantidad <= 0) {
+                    javax.swing.JOptionPane.showMessageDialog(
+                            this,
+                            "La cantidad debe ser mayor que cero."
+                    );
+                    return;
+                }
+
+                java.math.BigDecimal precioUnitario = productoBD.getPrecioVenta();
+
+                java.math.BigDecimal totalLinea = precioUnitario
+                        .multiply(java.math.BigDecimal.valueOf(cantidad))
+                        .setScale(2, java.math.RoundingMode.HALF_UP);
+
+                java.math.BigDecimal subtotal = totalLinea
+                        .divide(new java.math.BigDecimal("1.12"), 2,
+                                java.math.RoundingMode.HALF_UP);
+
+                java.math.BigDecimal iva = totalLinea.subtract(subtotal);
+
+                javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
+                model.addRow(new Object[]{
+                    productoBD.getCodigo(),
+                    cantidad,
+                    precioUnitario,
+                    subtotal,
+                    iva,
+                    totalLinea
+                });
+
+                calcularTotalesYMontos();
+            }
         }
-
-        double cantidad;
-
-        try {
-            cantidad = Double.parseDouble(cantStr.trim());
-        } catch (NumberFormatException ex) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Escribe una cantidad numérica válida."
-            );
-            return;
-        }
-
-        if (!Double.isFinite(cantidad) || cantidad <= 0) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "La cantidad debe ser mayor que cero."
-            );
-            return;
-        }
-            
-            
-            java.math.BigDecimal precioUnitario = productoBD.getPrecioVenta();
-
-            java.math.BigDecimal totalLinea = precioUnitario
-                    .multiply(java.math.BigDecimal.valueOf(cantidad))
-                    .setScale(2, java.math.RoundingMode.HALF_UP);
-
-            java.math.BigDecimal subtotal = totalLinea
-                    .divide(new java.math.BigDecimal("1.12"), 2,
-                            java.math.RoundingMode.HALF_UP);
-
-            java.math.BigDecimal iva = totalLinea.subtract(subtotal);
-            
-
-            javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
-            model.addRow(new Object[]{
-                productoBD.getCodigo(),
-                cantidad,
-                precioUnitario,
-                subtotal,
-                iva,
-                totalLinea
-            });
-
-            calcularTotalesYMontos();
-        }
-    }
     }//GEN-LAST:event_btnAgregarProductoActionPerformed
 
     private void btnEliminarSeleccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarSeleccionActionPerformed
@@ -642,15 +656,15 @@ public class PnlVentas extends javax.swing.JPanel {
             return;
         }
 
-        javax.swing.table.DefaultTableModel modelo =
-                (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
+        javax.swing.table.DefaultTableModel modelo
+                = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
 
         modelo.removeRow(fila);
         calcularTotalesYMontos();
     }//GEN-LAST:event_btnEliminarSeleccionActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-       txtNumeroVenta.setText("");
+        txtNumeroVenta.setText("");
         jTextField1.setText("0.00");
         jTextField2.setText("0.00");
         jTextField3.setText("0.00");
@@ -663,13 +677,13 @@ public class PnlVentas extends javax.swing.JPanel {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnConfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarActionPerformed
-       try {
+        try {
             String numVenta = txtNumeroVenta.getText().trim();
-            
+
             if (numVenta.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Escribe el número de venta."
+                javax.swing.JOptionPane.showMessageDialog(
+                        this,
+                        "Escribe el número de venta."
                 );
                 return;
             }
@@ -681,7 +695,7 @@ public class PnlVentas extends javax.swing.JPanel {
                 );
                 return;
             }
-            
+
             java.time.LocalDate fecha;
             try {
                 fecha = java.time.LocalDate.parse(txtFecha.getText().trim());
@@ -692,7 +706,7 @@ public class PnlVentas extends javax.swing.JPanel {
                 );
                 return;
             }
-                
+
             String formaStr = jComboBox2.getSelectedItem().toString().toUpperCase();
             modelo.FormaPago formaPago = modelo.FormaPago.EFECTIVO;
             if (formaStr.contains("TARJETA")) {
@@ -702,17 +716,17 @@ public class PnlVentas extends javax.swing.JPanel {
             }
 
             java.math.BigDecimal subtotal = new java.math.BigDecimal(jTextField1.getText().trim());
-            
-            java.math.BigDecimal descuento =
-            new java.math.BigDecimal(txtTotalDescuentos.getText().trim());
-            
+
+            java.math.BigDecimal descuento
+                    = new java.math.BigDecimal(txtTotalDescuentos.getText().trim());
+
             java.math.BigDecimal iva = new java.math.BigDecimal(jTextField3.getText().trim());
             java.math.BigDecimal total = new java.math.BigDecimal(jTextField4.getText().trim());
 
-                String codigoClienteSeleccionado =
-                cbCodigoCliente.getSelectedItem() == null
-                ? ""
-                : cbCodigoCliente.getSelectedItem().toString();
+            String codigoClienteSeleccionado
+                    = cbCodigoCliente.getSelectedItem() == null
+                    ? ""
+                    : cbCodigoCliente.getSelectedItem().toString();
 
             modelo.Cliente cliente = clienteDAO.listarClientes().stream()
                     .filter(c -> codigoClienteSeleccionado.equals(c.getCodigoCliente()))
@@ -726,25 +740,32 @@ public class PnlVentas extends javax.swing.JPanel {
                 );
                 return;
             }
-            
-            
-            
-            
+
             if (cbCodigoCliente.getSelectedItem() != null) {
                 cliente.setCodigoCliente(cbCodigoCliente.getSelectedItem().toString());
             } else {
                 cliente.setCodigoCliente("CF");
             }
 
-            String nombreUsuarioSeleccionado =
-            jComboBox3.getSelectedItem() == null
-                ? ""
-                : jComboBox3.getSelectedItem().toString();
 
-            modelo.Usuario usuario = usuarioDAO.listarUsuarios().stream()
-                    .filter(u -> nombreUsuarioSeleccionado.equals(u.getNombreUsuario()))
-                    .findFirst()
-                    .orElse(null);
+            modelo.Usuario usuario;
+
+            if (usuarioActual != null) {
+                // Sesión de empleado: la venta queda a nombre del usuario conectado.
+                usuario = usuarioActual;
+            } else {
+                // Constructor sin usuario: mantiene el selector para ese flujo.
+                String nombreUsuarioSeleccionado
+                        = jComboBox3.getSelectedItem() == null
+                        ? ""
+                        : jComboBox3.getSelectedItem().toString();
+
+                usuario = usuarioDAO.listarUsuarios().stream()
+                        .filter(u -> nombreUsuarioSeleccionado.equals(
+                        u.getNombreUsuario()))
+                        .findFirst()
+                        .orElse(null);
+            }
 
             if (usuario == null) {
                 javax.swing.JOptionPane.showMessageDialog(
@@ -753,8 +774,7 @@ public class PnlVentas extends javax.swing.JPanel {
                 );
                 return;
             }
-            
-            
+
             modelo.Venta nuevaVenta = new modelo.Venta(
                     numVenta,
                     fecha,
@@ -770,8 +790,8 @@ public class PnlVentas extends javax.swing.JPanel {
             javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblDetalleVenta.getModel();
             for (int i = 0; i < model.getRowCount(); i++) {
                 String codigoProducto = model.getValueAt(i, 0).toString();
-                modelo.Producto prod =
-                        productoDAO.buscarProductoPorCodigo(codigoProducto);
+                modelo.Producto prod
+                        = productoDAO.buscarProductoPorCodigo(codigoProducto);
 
                 if (prod == null) {
                     throw new IllegalArgumentException(
@@ -779,18 +799,17 @@ public class PnlVentas extends javax.swing.JPanel {
                     );
                 }
 
-                double cantidad =
-                        Double.parseDouble(model.getValueAt(i, 1).toString());
+                double cantidad
+                        = Double.parseDouble(model.getValueAt(i, 1).toString());
 
-                java.math.BigDecimal precio =
-                        new java.math.BigDecimal(model.getValueAt(i, 2).toString());
+                java.math.BigDecimal precio
+                        = new java.math.BigDecimal(model.getValueAt(i, 2).toString());
 
-                modelo.DetalleVenta detalle =
-                        new modelo.DetalleVenta(prod, cantidad, precio);
-                
-                
+                modelo.DetalleVenta detalle
+                        = new modelo.DetalleVenta(prod, cantidad, precio);
+
                 detalle.setSubtotal(
-                    new java.math.BigDecimal(model.getValueAt(i, 3).toString())
+                        new java.math.BigDecimal(model.getValueAt(i, 3).toString())
                 );
                 detalle.setIvaLinea(
                         new java.math.BigDecimal(model.getValueAt(i, 4).toString())
@@ -804,67 +823,67 @@ public class PnlVentas extends javax.swing.JPanel {
                 nuevaVenta.agregarDetalle(detalle);
             }
 
-                if (ventaDAO.insertarVenta(nuevaVenta)) {
-    try {
-        java.io.File pdf =
-                ComprobanteVentaPDF.guardarPDF(nuevaVenta, this);
-
-        if (pdf != null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Venta registrada.\nComprobante guardado en:\n"
-                            + pdf.getAbsolutePath(),
-                    "Venta confirmada",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
-
-            // Abre el PDF para que puedas revisarlo e imprimirlo.
-            if (java.awt.Desktop.isDesktopSupported()) {
+            if (ventaDAO.insertarVenta(nuevaVenta)) {
                 try {
-                    java.awt.Desktop.getDesktop().open(pdf);
-                } catch (java.io.IOException ex) {
+                    java.io.File pdf
+                            = ComprobanteVentaPDF.guardarPDF(nuevaVenta, this);
+
+                    if (pdf != null) {
+                        javax.swing.JOptionPane.showMessageDialog(
+                                this,
+                                "Venta registrada.\nComprobante guardado en:\n"
+                                + pdf.getAbsolutePath(),
+                                "Venta confirmada",
+                                javax.swing.JOptionPane.INFORMATION_MESSAGE
+                        );
+
+                        // Abre el PDF para que puedas revisarlo e imprimirlo.
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            try {
+                                java.awt.Desktop.getDesktop().open(pdf);
+                            } catch (java.io.IOException ex) {
+                                javax.swing.JOptionPane.showMessageDialog(
+                                        this,
+                                        "El PDF se guardó, pero no se pudo abrir automáticamente.\n"
+                                        + "Puedes abrirlo desde:\n"
+                                        + pdf.getAbsolutePath(),
+                                        "PDF guardado",
+                                        javax.swing.JOptionPane.WARNING_MESSAGE
+                                );
+                            }
+                        }
+                    } else {
+                        javax.swing.JOptionPane.showMessageDialog(
+                                this,
+                                "La venta se guardó, pero cancelaste dónde guardar el PDF.",
+                                "Venta confirmada",
+                                javax.swing.JOptionPane.INFORMATION_MESSAGE
+                        );
+                    }
+
+                } catch (java.io.IOException
+                        | org.openpdf.text.DocumentException ex) {
+
                     javax.swing.JOptionPane.showMessageDialog(
                             this,
-                            "El PDF se guardó, pero no se pudo abrir automáticamente.\n"
-                                    + "Puedes abrirlo desde:\n"
-                                    + pdf.getAbsolutePath(),
-                            "PDF guardado",
-                            javax.swing.JOptionPane.WARNING_MESSAGE
+                            "La venta se guardó, pero ocurrió un error al generar el PDF:\n"
+                            + ex.getMessage(),
+                            "Error al generar el comprobante",
+                            javax.swing.JOptionPane.ERROR_MESSAGE
                     );
                 }
-            }
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "La venta se guardó, pero cancelaste dónde guardar el PDF.",
-                    "Venta confirmada",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
-        }
 
-            } catch (java.io.IOException
-                    | org.openpdf.text.DocumentException ex) {
+                // Limpia el formulario al final, después de guardar la venta.
+                btnCancelarActionPerformed(evt);
 
+            } else {
                 javax.swing.JOptionPane.showMessageDialog(
                         this,
-                        "La venta se guardó, pero ocurrió un error al generar el PDF:\n"
-                                + ex.getMessage(),
-                        "Error al generar el comprobante",
+                        "No se pudo registrar la venta en la base de datos.",
+                        "Error",
                         javax.swing.JOptionPane.ERROR_MESSAGE
                 );
             }
-
-            // Limpia el formulario al final, después de guardar la venta.
-            btnCancelarActionPerformed(evt);
-
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo registrar la venta en la base de datos.",
-                    "Error",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-        }
 
         } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Error en los datos de la venta: " + e.getMessage(), "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
@@ -872,11 +891,11 @@ public class PnlVentas extends javax.swing.JPanel {
     }//GEN-LAST:event_btnConfirmarActionPerformed
 
     private void txtNumeroVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNumeroVentaActionPerformed
-    cbCodigoCliente.requestFocus();;
+        cbCodigoCliente.requestFocus();;
     }//GEN-LAST:event_txtNumeroVentaActionPerformed
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-       calcularTotalesYMontos();
+        calcularTotalesYMontos();
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -900,7 +919,7 @@ public class PnlVentas extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTotalDescuentosActionPerformed
 
-        
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarProducto;
     private javax.swing.JButton btnCalcularDescuentos;

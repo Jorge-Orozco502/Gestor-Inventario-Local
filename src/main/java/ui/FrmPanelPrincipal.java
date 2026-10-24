@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package ui;
 
 import javax.swing.JFrame;
 
-/**
- *
- * @author david
- */
+
 public class FrmPanelPrincipal extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmPanelPrincipal.class.getName());
@@ -143,6 +137,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         btnReportes = new javax.swing.JButton();
         btnHistorial = new javax.swing.JButton();
         btnProduccion = new javax.swing.JButton();
+        btnInventarioingresar = new javax.swing.JButton();
         pnlCentral = new javax.swing.JPanel();
         lblBienvenida = new javax.swing.JLabel();
         pnlVentasDia = new javax.swing.JPanel();
@@ -217,10 +212,10 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI Semibold", 0, 12)); // NOI18N
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("Administrador: Daniel Lopez ");
+        jLabel7.setText("Administrador");
         jLabel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jLabel7.setOpaque(true);
-        pnlEncabezado.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 10, -1, -1));
+        pnlEncabezado.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 10, -1, -1));
 
         btnCerrarSesion.setText("CERRAR SESIÓN");
         btnCerrarSesion.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
@@ -342,6 +337,15 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
             }
         });
 
+        btnInventarioingresar.setBackground(new java.awt.Color(179, 217, 190));
+        btnInventarioingresar.setText("Inventario");
+        btnInventarioingresar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        btnInventarioingresar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInventarioingresarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlLateralLayout = new javax.swing.GroupLayout(pnlLateral);
         pnlLateral.setLayout(pnlLateralLayout);
         pnlLateralLayout.setHorizontalGroup(
@@ -365,6 +369,10 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(btnPanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLateralLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnInventarioingresar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         pnlLateralLayout.setVerticalGroup(
             pnlLateralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -374,6 +382,8 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addComponent(btnInventario)
                 .addGap(18, 18, 18)
+                .addComponent(btnInventarioingresar)
+                .addGap(15, 15, 15)
                 .addComponent(btnVentas)
                 .addGap(18, 18, 18)
                 .addComponent(btnProveedores)
@@ -825,6 +835,18 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         this.dispose(); // Cierra la ventana actual
     }//GEN-LAST:event_btnPanelPrincipalActionPerformed
 
+    private void btnInventarioingresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInventarioingresarActionPerformed
+        // TODO add your handling code here:
+        PnlEntradasInventario panel = new PnlEntradasInventario();
+
+        pnlCentral.removeAll();
+        pnlCentral.setLayout(new java.awt.BorderLayout());
+        pnlCentral.add(panel, java.awt.BorderLayout.CENTER);
+        pnlCentral.revalidate();
+        pnlCentral.repaint();
+
+    }//GEN-LAST:event_btnInventarioingresarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -850,6 +872,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnCerrarSesion;
     private javax.swing.JButton btnHistorial;
     private javax.swing.JButton btnInventario;
+    private javax.swing.JButton btnInventarioingresar;
     private javax.swing.JButton btnPanelPrincipal;
     private javax.swing.JButton btnProduccion;
     private javax.swing.JButton btnProveedores;
