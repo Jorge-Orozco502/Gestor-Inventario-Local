@@ -1,4 +1,3 @@
-
 package ui;
 
 import dao.ReporteDAO;
@@ -13,7 +12,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import org.openpdf.text.DocumentException;
 
-
 public class PnlReportes extends javax.swing.JPanel {
 
     /**
@@ -23,338 +21,307 @@ public class PnlReportes extends javax.swing.JPanel {
         initComponents();
         configurarBotonesReportes();
     }
-    
+
     private void configurarBotonesReportes() {
-    Calendar inicioMes = Calendar.getInstance();
-    inicioMes.set(Calendar.DAY_OF_MONTH, 1);
+        Calendar inicioMes = Calendar.getInstance();
+        inicioMes.set(Calendar.DAY_OF_MONTH, 1);
 
-    java.util.Date desdeMes = inicioMes.getTime();
-    java.util.Date hoy = new java.util.Date();
+        java.util.Date desdeMes = inicioMes.getTime();
+        java.util.Date hoy = new java.util.Date();
 
-    dcDesdeVentas.setDateFormatString("dd/MM/yyyy");
-    dcDesdeVentas.setDate(desdeMes);
-    dcHastaVentas.setDateFormatString("dd/MM/yyyy");
-    dcHastaVentas.setDate(hoy);
+        dcDesdeVentas.setDateFormatString("dd/MM/yyyy");
+        dcDesdeVentas.setDate(desdeMes);
+        dcHastaVentas.setDateFormatString("dd/MM/yyyy");
+        dcHastaVentas.setDate(hoy);
 
-    dcDesdeProductos.setDateFormatString("dd/MM/yyyy");
-    dcDesdeProductos.setDate(desdeMes);
-    dcHastaProductos.setDateFormatString("dd/MM/yyyy");
-    dcHastaProductos.setDate(hoy);
+        dcDesdeProductos.setDateFormatString("dd/MM/yyyy");
+        dcDesdeProductos.setDate(desdeMes);
+        dcHastaProductos.setDateFormatString("dd/MM/yyyy");
+        dcHastaProductos.setDate(hoy);
 
-    dcDesdeActividad.setDateFormatString("dd/MM/yyyy");
-    dcDesdeActividad.setDate(desdeMes);
-    dcHastaAdctividad.setDateFormatString("dd/MM/yyyy");
-    dcHastaAdctividad.setDate(hoy);
+        cmbMetodoPago.setModel(new javax.swing.DefaultComboBoxModel<>(
+                new String[]{
+                    "TODOS",
+                    "EFECTIVO",
+                    "TARJETA DE CRÉDITO",
+                    "TARJETA DE DÉBITO",
+                    "TRANSFERENCIA"
+                }
+        ));
 
-    cmbMetodoPago.setModel(new javax.swing.DefaultComboBoxModel<>(
-            new String[]{
-                "TODOS",
-                "EFECTIVO",
-                "TARJETA",
-                "TRANSFERENCIA",
-                "CREDITO"
+        jLabel2.setText("Ventas por período");
+        jLabel11.setText("Ventas registradas");
+        jLabel12.setText("Pendientes*");
+        jLabel12.setToolTipText(
+                "La tabla venta no tiene un campo de estado."
+        );
+
+        jTable4.setModel(new DefaultTableModel(
+                new String[]{"Producto", "Cantidad vendida", "Total vendido"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int fila, int columna) {
+                return false;
             }
-    ));
+        });
 
-    jLabel2.setText("Ventas por período");
-    jLabel11.setText("Ventas registradas");
-    jLabel12.setText("Pendientes*");
-    jLabel12.setToolTipText(
-            "La tabla venta no tiene un campo de estado."
-    );
+        btnFiltrar.addActionListener(e -> filtrarReportes());
+        btnExportarEXCEL.addActionListener(e -> exportarExcel());
+        btnDescargarPDF.addActionListener(e -> exportarPdf());
 
-    jTable4.setModel(new DefaultTableModel(
-            new String[]{"Producto", "Cantidad vendida", "Total vendido"}, 0
-    ) {
-        @Override
-        public boolean isCellEditable(int fila, int columna) {
-            return false;
-        }
-    });
-
-    jTable3.setModel(new DefaultTableModel(
-            new String[]{"Fecha", "Operación", "Usuario"}, 0
-    ) {
-        @Override
-        public boolean isCellEditable(int fila, int columna) {
-            return false;
-        }
-    });
-
-    btnFiltrar.addActionListener(e -> filtrarReportes());
-    btnExportarEXCEL.addActionListener(e -> exportarExcel());
-    btnDescargarPDF.addActionListener(e -> exportarPdf());
-
-    filtrarReportes();
-}
-
-private LocalDate obtenerFecha(
-        com.toedter.calendar.JDateChooser selector) {
-
-    java.util.Date fechaElegida = selector.getDate();
-
-    if (fechaElegida == null) {
-        return null;
+        filtrarReportes();
     }
 
-    return fechaElegida.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
-}
+    private LocalDate obtenerFecha(
+            com.toedter.calendar.JDateChooser selector) {
 
-private void validarRango(
-        LocalDate desde,
-        LocalDate hasta,
-        String nombreRango) {
+        java.util.Date fechaElegida = selector.getDate();
 
-    if (desde == null || hasta == null) {
-        throw new IllegalArgumentException(
-                "Selecciona las fechas Desde y Hasta de " + nombreRango + "."
-        );
-    }
-
-    if (desde.isAfter(hasta)) {
-        throw new IllegalArgumentException(
-                "La fecha Desde no puede ser posterior a Hasta en "
-                + nombreRango + "."
-        );
-    }
-}
-
-private void filtrarReportes() {
-    try {
-        LocalDate desdeVentas = obtenerFecha(dcDesdeVentas);
-        LocalDate hastaVentas = obtenerFecha(dcHastaVentas);
-
-        LocalDate desdeProductos = obtenerFecha(dcDesdeProductos);
-        LocalDate hastaProductos = obtenerFecha(dcHastaProductos);
-
-        LocalDate desdeActividad = obtenerFecha(dcDesdeActividad);
-        LocalDate hastaActividad = obtenerFecha(dcHastaAdctividad);
-
-        validarRango(desdeVentas, hastaVentas, "ventas");
-        validarRango(desdeProductos, hastaProductos, "productos");
-        validarRango(desdeActividad, hastaActividad, "actividad");
-
-        ReporteDAO reporteDAO = new ReporteDAO();
-
-        llenarTabla(
-                tblVentasPeriodo,
-                reporteDAO.ventas(
-                        desdeVentas,
-                        hastaVentas,
-                        String.valueOf(cmbMetodoPago.getSelectedItem())
-                )
-        );
-
-        llenarTabla(
-                jTable4,
-                reporteDAO.productosMasVendidos(
-                        desdeProductos,
-                        hastaProductos
-                )
-        );
-
-        llenarTabla(
-                jTable3,
-                reporteDAO.actividad(
-                        desdeActividad,
-                        hastaActividad
-                )
-        );
-
-        actualizarResumen();
-
-    } catch (IllegalArgumentException ex) {
-        JOptionPane.showMessageDialog(
-                this,
-                ex.getMessage(),
-                "Revisa las fechas",
-                JOptionPane.WARNING_MESSAGE
-        );
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(
-                this,
-                "No fue posible cargar el reporte: " + ex.getMessage(),
-                "Error de consulta",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
-}
-
-private void llenarTabla(
-        javax.swing.JTable tabla,
-        java.util.List<Object[]> filas) {
-
-    DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
-    modelo.setRowCount(0);
-
-    for (Object[] fila : filas) {
-        modelo.addRow(fila);
-    }
-}
-
-private void actualizarResumen() {
-    java.math.BigDecimal total = java.math.BigDecimal.ZERO;
-
-    for (int fila = 0; fila < tblVentasPeriodo.getRowCount(); fila++) {
-        Object valor = tblVentasPeriodo.getValueAt(fila, 6);
-
-        if (valor instanceof java.math.BigDecimal monto) {
-            total = total.add(monto);
-        }
-    }
-
-    int cantidadVentas = tblVentasPeriodo.getRowCount();
-
-    lblTotalVendido.setText(
-            String.format(java.util.Locale.US, "Q %,.2f", total)
-    );
-
-    lblVentasCompletadas.setText(String.valueOf(cantidadVentas));
-
-    // La tabla venta no contiene una columna para saber si está pendiente.
-    lblVentasPendientes.setText("N/D");
-
-    java.math.BigDecimal promedio = cantidadVentas == 0
-            ? java.math.BigDecimal.ZERO
-            : total.divide(
-                    java.math.BigDecimal.valueOf(cantidadVentas),
-                    2,
-                    java.math.RoundingMode.HALF_UP
-            );
-
-    lblPromedioVenta.setText(
-            String.format(java.util.Locale.US, "Q %,.2f", promedio)
-    );
-}
-
-private String obtenerResumenActual() {
-    return "Período: "
-            + dcDesdeVentas.getDate()
-            + " a "
-            + dcHastaVentas.getDate()
-            + " | Forma de pago: "
-            + cmbMetodoPago.getSelectedItem()
-            + " | Total vendido: "
-            + lblTotalVendido.getText()
-            + " | Ventas registradas: "
-            + lblVentasCompletadas.getText()
-            + " | Promedio por venta: "
-            + lblPromedioVenta.getText();
-}
-
-private File elegirArchivo(
-        String titulo,
-        String extension,
-        String descripcion) {
-
-    JFileChooser selector = new JFileChooser();
-    selector.setDialogTitle(titulo);
-    selector.setSelectedFile(new File("Reporte_Ventas." + extension));
-    selector.setFileFilter(
-            new FileNameExtensionFilter(descripcion, extension)
-    );
-
-    if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-        return null;
-    }
-
-    File archivo = selector.getSelectedFile();
-
-    if (!archivo.getName().toLowerCase().endsWith("." + extension)) {
-        archivo = new File(
-                archivo.getParentFile(),
-                archivo.getName() + "." + extension
-        );
-    }
-
-    if (archivo.exists()) {
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "El archivo ya existe. ¿Deseas reemplazarlo?",
-                "Confirmar reemplazo",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (respuesta != JOptionPane.YES_OPTION) {
+        if (fechaElegida == null) {
             return null;
         }
+
+        return fechaElegida.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
     }
 
-    return archivo;
-}
+    private void validarRango(
+            LocalDate desde,
+            LocalDate hasta,
+            String nombreRango) {
 
-private void exportarExcel() {
-    File archivo = elegirArchivo(
-            "Guardar reporte de Excel",
-            "xlsx",
-            "Libro de Excel (*.xlsx)"
-    );
+        if (desde == null || hasta == null) {
+            throw new IllegalArgumentException(
+                    "Selecciona las fechas Desde y Hasta de " + nombreRango + "."
+            );
+        }
 
-    if (archivo == null) {
-        return;
+        if (desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(
+                    "La fecha Desde no puede ser posterior a Hasta en "
+                    + nombreRango + "."
+            );
+        }
     }
 
-    try {
-        ExportadorReportes.exportarExcel(
-                archivo.getAbsolutePath(),
-                obtenerResumenActual(),
-                tblVentasPeriodo,
-                jTable4,
-                jTable3
+    private void filtrarReportes() {
+        try {
+            LocalDate desdeVentas = obtenerFecha(dcDesdeVentas);
+            LocalDate hastaVentas = obtenerFecha(dcHastaVentas);
+
+            LocalDate desdeProductos = obtenerFecha(dcDesdeProductos);
+            LocalDate hastaProductos = obtenerFecha(dcHastaProductos);
+
+            validarRango(desdeVentas, hastaVentas, "ventas");
+            validarRango(desdeProductos, hastaProductos, "productos");
+
+            ReporteDAO reporteDAO = new ReporteDAO();
+
+            llenarTabla(
+                    tblVentasPeriodo,
+                    reporteDAO.ventas(
+                            desdeVentas,
+                            hastaVentas,
+                            String.valueOf(cmbMetodoPago.getSelectedItem())
+                    )
+            );
+
+            llenarTabla(
+                    jTable4,
+                    reporteDAO.productosMasVendidos(
+                            desdeProductos,
+                            hastaProductos
+                    )
+            );
+
+            actualizarResumen();
+
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Revisa las fechas",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No fue posible cargar el reporte: " + ex.getMessage(),
+                    "Error de consulta",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void llenarTabla(
+            javax.swing.JTable tabla,
+            java.util.List<Object[]> filas) {
+
+        DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+        modelo.setRowCount(0);
+
+        for (Object[] fila : filas) {
+            modelo.addRow(fila);
+        }
+    }
+
+    private void actualizarResumen() {
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+
+        for (int fila = 0; fila < tblVentasPeriodo.getRowCount(); fila++) {
+            Object valor = tblVentasPeriodo.getValueAt(fila, 6);
+
+            if (valor instanceof java.math.BigDecimal monto) {
+                total = total.add(monto);
+            }
+        }
+
+        int cantidadVentas = tblVentasPeriodo.getRowCount();
+
+        lblTotalVendido.setText(
+                String.format(java.util.Locale.US, "Q %,.2f", total)
         );
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Reporte Excel guardado en:\n" + archivo.getAbsolutePath()
-        );
-    } catch (java.io.IOException ex) {
-        JOptionPane.showMessageDialog(
-                this,
-                "No se pudo crear el Excel: " + ex.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE
+        lblVentasCompletadas.setText(String.valueOf(cantidadVentas));
+
+        // La tabla venta no contiene una columna para saber si está pendiente.
+        lblVentasPendientes.setText("N/D");
+
+        java.math.BigDecimal promedio = cantidadVentas == 0
+                ? java.math.BigDecimal.ZERO
+                : total.divide(
+                        java.math.BigDecimal.valueOf(cantidadVentas),
+                        2,
+                        java.math.RoundingMode.HALF_UP
+                );
+
+        lblPromedioVenta.setText(
+                String.format(java.util.Locale.US, "Q %,.2f", promedio)
         );
     }
-}
 
-private void exportarPdf() {
-    File archivo = elegirArchivo(
-            "Guardar informe PDF",
-            "pdf",
-            "Documento PDF (*.pdf)"
-    );
-
-    if (archivo == null) {
-        return;
+    private String obtenerResumenActual() {
+        return "Período: "
+                + dcDesdeVentas.getDate()
+                + " a "
+                + dcHastaVentas.getDate()
+                + " | Forma de pago: "
+                + cmbMetodoPago.getSelectedItem()
+                + " | Total vendido: "
+                + lblTotalVendido.getText()
+                + " | Ventas registradas: "
+                + lblVentasCompletadas.getText()
+                + " | Promedio por venta: "
+                + lblPromedioVenta.getText();
     }
 
-    try {
-        ExportadorReportes.exportarPdf(
-                archivo.getAbsolutePath(),
-                obtenerResumenActual(),
-                tblVentasPeriodo,
-                jTable4,
-                jTable3
+    private File elegirArchivo(
+            String titulo,
+            String extension,
+            String descripcion) {
+
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle(titulo);
+        selector.setSelectedFile(new File("Reporte_Ventas." + extension));
+        selector.setFileFilter(
+                new FileNameExtensionFilter(descripcion, extension)
         );
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Informe PDF guardado en:\n" + archivo.getAbsolutePath()
-        );
-    } catch (java.io.IOException | DocumentException ex) {
-        JOptionPane.showMessageDialog(
-                this,
-                "No se pudo crear el PDF: " + ex.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        File archivo = selector.getSelectedFile();
+
+        if (!archivo.getName().toLowerCase().endsWith("." + extension)) {
+            archivo = new File(
+                    archivo.getParentFile(),
+                    archivo.getName() + "." + extension
+            );
+        }
+
+        if (archivo.exists()) {
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "El archivo ya existe. ¿Deseas reemplazarlo?",
+                    "Confirmar reemplazo",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return null;
+            }
+        }
+
+        return archivo;
     }
-}
-    
-    
-    
+
+    private void exportarExcel() {
+        File archivo = elegirArchivo(
+                "Guardar reporte de Excel",
+                "xlsx",
+                "Libro de Excel (*.xlsx)"
+        );
+
+        if (archivo == null) {
+            return;
+        }
+
+        try {
+            ExportadorReportes.exportarExcel(
+                    archivo.getAbsolutePath(),
+                    obtenerResumenActual(),
+                    tblVentasPeriodo,
+                    jTable4
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte Excel guardado en:\n" + archivo.getAbsolutePath()
+            );
+        } catch (java.io.IOException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo crear el Excel: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void exportarPdf() {
+        File archivo = elegirArchivo(
+                "Guardar informe PDF",
+                "pdf",
+                "Documento PDF (*.pdf)"
+        );
+
+        if (archivo == null) {
+            return;
+        }
+
+        try {
+            ExportadorReportes.exportarPdf(
+                    archivo.getAbsolutePath(),
+                    obtenerResumenActual(),
+                    tblVentasPeriodo,
+                    jTable4
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Informe PDF guardado en:\n" + archivo.getAbsolutePath()
+            );
+        } catch (java.io.IOException | DocumentException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo crear el PDF: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -401,14 +368,6 @@ private void exportarPdf() {
         jLabel15 = new javax.swing.JLabel();
         dcDesdeProductos = new com.toedter.calendar.JDateChooser();
         dcHastaProductos = new com.toedter.calendar.JDateChooser();
-        jPanel7 = new javax.swing.JPanel();
-        jLabel14 = new javax.swing.JLabel();
-        spActividadReciente = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        dcDesdeActividad = new com.toedter.calendar.JDateChooser();
-        dcHastaAdctividad = new com.toedter.calendar.JDateChooser();
         btnExportarEXCEL = new javax.swing.JButton();
 
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -674,7 +633,7 @@ private void exportarPdf() {
 
             },
             new String [] {
-                "Fecha", "Producto", "Usuario"
+                "Producto", "Cantidad Vendida", "Total Vendido"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -697,100 +656,34 @@ private void exportarPdf() {
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel12Layout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dcDesdeProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel15)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dcHastaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel6))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(dcDesdeProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
+                .addComponent(jLabel15)
+                .addGap(28, 28, 28)
+                .addComponent(dcHastaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(71, 71, 71))
             .addGroup(jPanel12Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tblProductosMasVendidos, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(tblProductosMasVendidos)
                 .addContainerGap())
         );
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dcDesdeProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
+                    .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(jLabel15)
+                        .addComponent(jLabel4))
                     .addComponent(dcHastaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel15))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tblProductosMasVendidos, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel7.setPreferredSize(new java.awt.Dimension(375, 269));
-
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel14.setText("Actividad Reciente");
-
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Fecha", "Operación", "Usuario"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        spActividadReciente.setViewportView(jTable3);
-
-        jLabel5.setText("Desde:");
-
-        jLabel16.setText("Hasta:");
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(spActividadReciente, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel7Layout.createSequentialGroup()
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dcDesdeActividad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel16)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dcHastaAdctividad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel14)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel16)
-                    .addComponent(jLabel5)
-                    .addComponent(dcDesdeActividad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dcHastaAdctividad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dcDesdeProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(spActividadReciente, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                .addComponent(tblProductosMasVendidos, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -812,10 +705,7 @@ private void exportarPdf() {
                         .addComponent(btnDescargarPDF)
                         .addGap(39, 39, 39))
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -835,9 +725,7 @@ private void exportarPdf() {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE))
+                .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 312, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -865,10 +753,8 @@ private void exportarPdf() {
     private javax.swing.JButton btnExportarEXCEL;
     private javax.swing.JButton btnFiltrar;
     private javax.swing.JComboBox<String> cmbMetodoPago;
-    private com.toedter.calendar.JDateChooser dcDesdeActividad;
     private com.toedter.calendar.JDateChooser dcDesdeProductos;
     private com.toedter.calendar.JDateChooser dcDesdeVentas;
-    private com.toedter.calendar.JDateChooser dcHastaAdctividad;
     private com.toedter.calendar.JDateChooser dcHastaProductos;
     private com.toedter.calendar.JDateChooser dcHastaVentas;
     private javax.swing.JLabel jLabel1;
@@ -876,13 +762,10 @@ private void exportarPdf() {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -893,17 +776,14 @@ private void exportarPdf() {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
     private javax.swing.JLabel lblPromedioVenta;
     private javax.swing.JLabel lblTotalVendido;
     private javax.swing.JLabel lblVentasCompletadas;
     private javax.swing.JLabel lblVentasPendientes;
-    private javax.swing.JScrollPane spActividadReciente;
     private javax.swing.JScrollPane tblProductosMasVendidos;
     private javax.swing.JTable tblVentasPeriodo;
     // End of variables declaration//GEN-END:variables

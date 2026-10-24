@@ -1,4 +1,3 @@
-
 package dao;
 
 import conexion.conexionBD;
@@ -12,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReporteDAO {
-    
-        public List<Object[]> ventas(
+
+    public List<Object[]> ventas(
             LocalDate desde,
             LocalDate hasta,
             String formaPago) throws SQLException {
@@ -24,8 +23,8 @@ public class ReporteDAO {
                 + "INNER JOIN cliente c ON c.codigo = v.codigo_cliente "
                 + "WHERE v.fecha BETWEEN ? AND "
                 + (formaPago.equalsIgnoreCase("TODOS")
-                    ? "?"
-                    : "? AND v.forma_pago = ?")
+                ? "?"
+                : "? AND v.forma_pago = ?")
                 + " ORDER BY v.fecha DESC, v.numero_venta DESC";
 
         List<Object[]> filas = new ArrayList<>();
@@ -138,6 +137,102 @@ public class ReporteDAO {
 
         return filas;
     }
-    
-    
+
+    public List<Object[]> historialGeneral(
+            LocalDate desde,
+            LocalDate hasta,
+            String tipoHistorial,
+            String busqueda) throws SQLException {
+
+        String sql
+                = "SELECT fecha, tipo, referencia, detalle, cantidad_total, usuario "
+                + "FROM ( "
+                + "    SELECT "
+                + "        v.fecha AS fecha, "
+                + "        'VENTA' AS tipo, "
+                + "        CONCAT('Venta #', v.numero_venta) AS referencia, "
+                + "        CONCAT('Cliente: ', COALESCE(c.nombre, 'Sin cliente')) AS detalle, "
+                + "        CONCAT('Q ', FORMAT(v.total_final, 2)) AS cantidad_total, "
+                + "        COALESCE(u.nombre_completo, u.nombre_usuario, 'Sin usuario') AS usuario "
+                + "    FROM venta v "
+                + "    LEFT JOIN cliente c ON c.codigo = v.codigo_cliente "
+                + "    LEFT JOIN usuario u ON u.id_usuario = v.id_usuario_responsable "
+                + "    WHERE v.fecha >= ? "
+                + "      AND v.fecha < DATE_ADD(?, INTERVAL 1 DAY) "
+                + "    UNION ALL "
+                + "    SELECT "
+                + "        m.fecha AS fecha, "
+                + "        CONCAT('PRODUCTO: ', m.tipo_movimiento) AS tipo, "
+                + "        COALESCE(NULLIF(m.referencia_documento, ''), "
+                + "                 CONCAT('Movimiento #', m.id_movimiento)) AS referencia, "
+                + "        CONCAT(COALESCE(p.codigo, ''), ' - ', "
+                + "               COALESCE(p.nombre, 'Producto eliminado')) AS detalle, "
+                + "        CONCAT(FORMAT(m.cantidad, 2), ' unidades') AS cantidad_total, "
+                + "        COALESCE(u.nombre_completo, u.nombre_usuario, 'Sin usuario') AS usuario "
+                + "    FROM movimiento_inventario m "
+                + "    LEFT JOIN producto p ON p.codigo = m.codigo_producto "
+                + "    LEFT JOIN usuario u ON u.id_usuario = m.id_usuario "
+                + "    WHERE m.fecha >= ? "
+                + "      AND m.fecha < DATE_ADD(?, INTERVAL 1 DAY) "
+                + ") AS historial "
+                + "WHERE ( "
+                + "       ? = 'TODOS' "
+                + "       OR (? = 'HISTORIAL DE VENTAS' AND tipo = 'VENTA') "
+                + "       OR (? = 'HISTORIAL PRODUCTOS' AND tipo LIKE 'PRODUCTO:%') "
+                + ") "
+                + "AND ( "
+                + "       ? = '' "
+                + "       OR referencia LIKE ? "
+                + "       OR detalle LIKE ? "
+                + "       OR tipo LIKE ? "
+                + "       OR usuario LIKE ? "
+                + "       OR DATE_FORMAT(fecha, '%d/%m/%Y %H:%i') LIKE ? "
+                + ") "
+                + "ORDER BY fecha DESC";
+
+        List<Object[]> filas = new ArrayList<>();
+
+        try (Connection cn = conexionBD.obtenerConexion()) {
+            if (cn == null) {
+                throw new SQLException("No se pudo conectar con la base de datos.");
+            }
+
+            try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                ps.setDate(1, Date.valueOf(desde));
+                ps.setDate(2, Date.valueOf(hasta));
+                ps.setDate(3, Date.valueOf(desde));
+                ps.setDate(4, Date.valueOf(hasta));
+
+                ps.setString(5, tipoHistorial);
+                ps.setString(6, tipoHistorial);
+                ps.setString(7, tipoHistorial);
+
+                String texto = busqueda == null ? "" : busqueda.trim();
+                String patron = "%" + texto + "%";
+
+                ps.setString(8, texto);
+                ps.setString(9, patron);
+                ps.setString(10, patron);
+                ps.setString(11, patron);
+                ps.setString(12, patron);
+                ps.setString(13, patron);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        filas.add(new Object[]{
+                            rs.getTimestamp("fecha"),
+                            rs.getString("tipo"),
+                            rs.getString("referencia"),
+                            rs.getString("detalle"),
+                            rs.getString("cantidad_total"),
+                            rs.getString("usuario")
+                        });
+                    }
+                }
+            }
+        }
+
+        return filas;
+    }
+
 }

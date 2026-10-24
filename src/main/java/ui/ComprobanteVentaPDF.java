@@ -22,6 +22,7 @@ import org.openpdf.text.Phrase;
 import org.openpdf.text.pdf.PdfPCell;
 import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
+import org.openpdf.text.Element;
 
 
 public class ComprobanteVentaPDF {
@@ -65,8 +66,26 @@ public class ComprobanteVentaPDF {
             Font titulo = new Font(Font.HELVETICA, 18, Font.BOLD);
             Font negrita = new Font(Font.HELVETICA, 11, Font.BOLD);
 
-            documento.add(new Paragraph("COMPROBANTE DE VENTA", titulo));
+            
+            
+       
+            
+            Font encabezadoEmpresa = new Font(Font.HELVETICA, 16, Font.BOLD);
+
+            Paragraph nombreEmpresa =
+                    new Paragraph("VENTANAS DE PVC ALVIDE", encabezadoEmpresa);
+            nombreEmpresa.setAlignment(Element.ALIGN_CENTER);
+            documento.add(nombreEmpresa);
+
+            Paragraph tituloComprobante =
+                    new Paragraph("COMPROBANTE DE VENTA", titulo);
+            tituloComprobante.setAlignment(Element.ALIGN_CENTER);
+            documento.add(tituloComprobante);
+
             documento.add(new Paragraph(" "));
+
+            
+            
             documento.add(new Paragraph(
                     "Número de venta: " + venta.getNumeroVenta()
             ));
@@ -113,7 +132,7 @@ public class ComprobanteVentaPDF {
                     "Subtotal: " + moneda(venta.getSubtotalGeneral())
             ));
             documento.add(new Paragraph(
-                    "Descuento: " + moneda(venta.getTotalDescuentos())
+                    "Descuento aplicado: " + moneda(venta.getTotalDescuentos())
             ));
             documento.add(new Paragraph(
                     "IVA: " + moneda(venta.getTotalIva())

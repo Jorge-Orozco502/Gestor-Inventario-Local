@@ -14,22 +14,121 @@ public class PnlUsuarios extends javax.swing.JPanel {
 
     public PnlUsuarios() {
         initComponents();
-        configurarAccionesBotones();
-        
-        // Inicializar y configurar la tabla, filtros y carga desde la BD
+
+            configurarAccionesBotones();
+            configurarTablaUsuarios();
+            cargarUsuarios();
         
     }
     
+    //METODO AUXILIAR
+    private void configurarTablaUsuarios() {
+        javax.swing.table.DefaultTableModel modelo =
+            new javax.swing.table.DefaultTableModel(
+                new Object[] {
+                    "ID Usuario",
+                    "Tipo Usuario",
+                    "Nombre",
+                    "Nombre Completo",
+                    "Activo",
+                    "Fecha creación"
+                },
+                0
+            ) {
+                @Override
+                public boolean isCellEditable(int fila, int columna) {
+                    return false;
+                }
+            };
+
+        tblUsuarios.setModel(modelo);
+        tblUsuarios.setAutoCreateRowSorter(true);
+    }
+
+    private void eliminarUsuarioSeleccionado() {
+        int filaVista = tblUsuarios.getSelectedRow();
+
+        if (filaVista == -1) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Selecciona un usuario de la tabla antes de eliminarlo.",
+                "Usuario no seleccionado",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Convierte el índice si la tabla está ordenada por alguna columna
+        int filaModelo = tblUsuarios.convertRowIndexToModel(filaVista);
+
+        int idUsuario = ((Number) tblUsuarios
+                .getModel()
+                .getValueAt(filaModelo, 0))
+                .intValue();
+
+        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Seguro que deseas eliminar al usuario con ID " + idUsuario + "?",
+            "Confirmar eliminación",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+
+        if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        UsuarioDAO dao = new UsuarioDAO();
+        boolean eliminado = dao.eliminarUsuario(idUsuario);
+
+        if (eliminado) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Usuario eliminado correctamente.",
+                "Eliminación completada",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+
+            limpiarCampos();
+            cargarUsuarios();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo eliminar el usuario. Revisa la consola de NetBeans.",
+                "Error al eliminar",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+    
+    
+    private void cargarUsuarios() {
+        javax.swing.table.DefaultTableModel modelo =
+            (javax.swing.table.DefaultTableModel) tblUsuarios.getModel();
+
+        modelo.setRowCount(0);
+
+        UsuarioDAO dao = new UsuarioDAO();
+
+        for (Usuario usuario : dao.listarUsuarios()) {
+            String tipo = usuario instanceof Administrador
+                    ? "ADMINISTRADOR"
+                    : "EMPLEADO";
+
+            modelo.addRow(new Object[] {
+                usuario.getIdUsuario(),
+                tipo,
+                usuario.getNombreUsuario(),
+                usuario.getNombreCompleto(),
+                usuario.isActivo() ? "Sí" : "No",
+                usuario.getFechaCreacion()
+            });
+        }
+    }
 
     private void configurarAccionesBotones() {
-        btnRegistrar.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                registrarNuevoUsuario();
-            }
-        });
-        
         btnLimpiar.addActionListener(e -> limpiarCampos());
+        btnEliminar.addActionListener(e -> eliminarUsuarioSeleccionado());
     }
 
     private void registrarNuevoUsuario() {
@@ -86,6 +185,7 @@ public class PnlUsuarios extends javax.swing.JPanel {
             );
 
             limpiarCampos();
+            cargarUsuarios();
 
         } else {
             javax.swing.JOptionPane.showMessageDialog(

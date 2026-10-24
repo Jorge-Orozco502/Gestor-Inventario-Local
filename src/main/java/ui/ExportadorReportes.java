@@ -20,8 +20,8 @@ import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
 
 public class ExportadorReportes {
-    
-        private ExportadorReportes() {
+
+    private ExportadorReportes() {
     }
 
     public static void exportarExcel(
@@ -88,55 +88,119 @@ public class ExportadorReportes {
             String resumen,
             JTable... tablas) throws IOException, DocumentException {
 
-        Document documento = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
+        Document documento
+                = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
 
         try (FileOutputStream salida = new FileOutputStream(archivo)) {
-            PdfWriter.getInstance(documento, salida);
-            documento.open();
-
-            documento.add(new Paragraph(
-                    "Informe de reportes",
-                    new Font(Font.HELVETICA, 16, Font.BOLD)
-            ));
-            documento.add(new Paragraph(resumen));
-            documento.add(new Paragraph(" "));
-
-            String[] titulos = {
-                "Ventas por período",
-                "Productos más vendidos",
-                "Actividad reciente"
-            };
-
-            for (int t = 0; t < tablas.length; t++) {
-                TableModel modelo = tablas[t].getModel();
+            try {
+                PdfWriter.getInstance(documento, salida);
+                documento.open();
 
                 documento.add(new Paragraph(
-                        titulos[t],
-                        new Font(Font.HELVETICA, 12, Font.BOLD)
+                        "Informe de reportes",
+                        new Font(Font.HELVETICA, 16, Font.BOLD)
                 ));
-
-                PdfPTable tabla = new PdfPTable(modelo.getColumnCount());
-                tabla.setWidthPercentage(100);
-
-                for (int c = 0; c < modelo.getColumnCount(); c++) {
-                    tabla.addCell(new Phrase(modelo.getColumnName(c)));
-                }
-
-                for (int r = 0; r < modelo.getRowCount(); r++) {
-                    for (int c = 0; c < modelo.getColumnCount(); c++) {
-                        Object valor = modelo.getValueAt(r, c);
-                        tabla.addCell(valor == null ? "" : valor.toString());
-                    }
-                }
-
-                documento.add(tabla);
+                documento.add(new Paragraph(resumen));
                 documento.add(new Paragraph(" "));
-            }
-        } finally {
-            if (documento.isOpen()) {
-                documento.close();
+
+                String[] titulos = {
+                    "Ventas por período",
+                    "Productos más vendidos",
+                    "Actividad reciente"
+                };
+
+                for (int t = 0; t < tablas.length; t++) {
+                    TableModel modelo = tablas[t].getModel();
+
+                    documento.add(new Paragraph(
+                            titulos[t],
+                            new Font(Font.HELVETICA, 12, Font.BOLD)
+                    ));
+
+                    PdfPTable tabla = new PdfPTable(modelo.getColumnCount());
+                    tabla.setWidthPercentage(100);
+
+                    for (int c = 0; c < modelo.getColumnCount(); c++) {
+                        tabla.addCell(new Phrase(modelo.getColumnName(c)));
+                    }
+
+                    for (int r = 0; r < modelo.getRowCount(); r++) {
+                        for (int c = 0; c < modelo.getColumnCount(); c++) {
+                            Object valor = modelo.getValueAt(r, c);
+                            tabla.addCell(
+                                    valor == null ? "" : valor.toString()
+                            );
+                        }
+                    }
+
+                    documento.add(tabla);
+                    documento.add(new Paragraph(" "));
+                }
+            } finally {
+                // Cierra y termina el PDF antes de cerrar el archivo de salida.
+                if (documento.isOpen()) {
+                    documento.close();
+                }
             }
         }
     }
-        
+
+    public static void exportarPdfHistorial(
+            String archivo,
+            String titulo,
+            String resumen,
+            JTable tablaSwing
+    ) throws IOException, DocumentException {
+
+        Document documento = new Document(
+                PageSize.A4.rotate(), 28, 28, 28, 28
+        );
+
+        try (FileOutputStream salida = new FileOutputStream(archivo)) {
+            try {
+                PdfWriter.getInstance(documento, salida);
+                documento.open();
+
+                documento.add(new Paragraph(
+                        titulo,
+                        new Font(Font.HELVETICA, 16, Font.BOLD)
+                ));
+                documento.add(new Paragraph(resumen));
+                documento.add(new Paragraph(" "));
+
+                TableModel modelo = tablaSwing.getModel();
+                PdfPTable tablaPdf = new PdfPTable(modelo.getColumnCount());
+                tablaPdf.setWidthPercentage(100);
+
+                for (int columna = 0;
+                        columna < modelo.getColumnCount();
+                        columna++) {
+                    tablaPdf.addCell(
+                            modelo.getColumnName(columna)
+                    );
+                }
+
+                for (int fila = 0; fila < modelo.getRowCount(); fila++) {
+                    for (int columna = 0;
+                            columna < modelo.getColumnCount();
+                            columna++) {
+
+                        Object valor = modelo.getValueAt(fila, columna);
+
+                        tablaPdf.addCell(
+                                valor == null ? "" : valor.toString()
+                        );
+                    }
+                }
+
+                documento.add(tablaPdf);
+
+            } finally {
+                if (documento.isOpen()) {
+                    documento.close();
+                }
+            }
+        }
+    }
+
 }

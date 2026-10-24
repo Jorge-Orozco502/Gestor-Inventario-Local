@@ -4,6 +4,8 @@
  */
 package ui;
 
+import javax.swing.JFrame;
+
 /**
  *
  * @author david
@@ -17,8 +19,16 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
      */
    
     public FrmPanelPrincipal() {
-       initComponents();          // Fuerza las dimensiones fijas        
-        // Llamar al método para cargar los datos en el Dashboard
+       initComponents();
+       
+            // Limita la altura visible del área central para que el scroll
+            // de cada pantalla pueda desplazarse dentro de ella.
+            java.awt.Dimension tamCentral = pnlCentral.getPreferredSize();
+            pnlCentral.setPreferredSize(
+                    new java.awt.Dimension(tamCentral.width, 600)
+            );
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+       
     } // <-- Aquí cierra el constructor
    
     // MÉTODO FUERA DEL CONSTRUCTOR
@@ -43,6 +53,59 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         lblEnProceso.setText("En proceso: " + enProceso);
         lblCompletadasHoy.setText("Completadas hoy: " + completadas);
     }
+    
+    //METODOS AUXILIARES
+    private void abrirPanelHistorial() {
+        PnlHistorialEmpleado panel = new PnlHistorialEmpleado();
+
+        java.awt.Dimension preferido = panel.getPreferredSize();
+        panel.setPreferredSize(new java.awt.Dimension(
+                preferido.width,
+                Math.max(preferido.height, 900)
+        ));
+
+        javax.swing.JScrollPane scroll =
+                new javax.swing.JScrollPane(panel);
+
+        scroll.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        pnlCentral.removeAll();
+        pnlCentral.setLayout(new java.awt.BorderLayout());
+        pnlCentral.add(scroll, java.awt.BorderLayout.CENTER);
+
+        pnlCentral.revalidate();
+        pnlCentral.repaint();
+    }
+    
+    private void mostrarPanelVentas() {
+           PnlVentas panel = new PnlVentas();
+
+        javax.swing.JScrollPane scroll =
+                new javax.swing.JScrollPane(panel);
+
+        scroll.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        pnlCentral.removeAll();
+        pnlCentral.setLayout(new java.awt.BorderLayout());
+        pnlCentral.add(scroll, java.awt.BorderLayout.CENTER);
+        pnlCentral.revalidate();
+        pnlCentral.repaint();
+    }
+
+    
+    
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -69,6 +132,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         pnlEncabezado = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         btnCerrarSesion = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         pnlLateral = new javax.swing.JPanel();
         btnInventario = new javax.swing.JButton();
@@ -168,9 +232,29 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         });
         pnlEncabezado.add(btnCerrarSesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, 100, 20));
 
+        jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setText("Sistema de Gestin - Ventanas de PVC ALVIDE ");
-        pnlEncabezado.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, -3, -1, 30));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(72, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pnlEncabezado.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 40));
 
         pnlLateral.setBackground(new java.awt.Color(247, 237, 228));
         pnlLateral.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -215,6 +299,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         btnPanelPrincipal.setBackground(new java.awt.Color(179, 219, 193));
         btnPanelPrincipal.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnPanelPrincipal.setText("Panel Principal");
+        btnPanelPrincipal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnPanelPrincipal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPanelPrincipalActionPerformed(evt);
@@ -274,24 +359,24 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
                             .addComponent(btnHistorial, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLateralLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnPanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLateralLayout.createSequentialGroup()
                         .addComponent(btnProduccion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())))
+            .addGroup(pnlLateralLayout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(btnPanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         pnlLateralLayout.setVerticalGroup(
             pnlLateralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlLateralLayout.createSequentialGroup()
-                .addGap(32, 32, 32)
+                .addGap(30, 30, 30)
                 .addComponent(btnPanelPrincipal)
-                .addGap(17, 17, 17)
-                .addComponent(btnInventario, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
+                .addComponent(btnInventario)
                 .addGap(18, 18, 18)
-                .addComponent(btnVentas, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnVentas)
                 .addGap(18, 18, 18)
-                .addComponent(btnProveedores, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnProveedores)
                 .addGap(18, 18, 18)
                 .addComponent(btnProduccion)
                 .addGap(18, 18, 18)
@@ -299,8 +384,8 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(btnHistorial)
                 .addGap(18, 18, 18)
-                .addComponent(btnUsuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(222, Short.MAX_VALUE))
+                .addComponent(btnUsuarios)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pnlCentral.setBackground(new java.awt.Color(255, 255, 255));
@@ -432,9 +517,9 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlAccesosDirectosLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAccesoRegistrarVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnAccesoHistorial, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(228, 228, 228))
+                .addGap(238, 238, 238))
             .addGroup(pnlAccesosDirectosLayout.createSequentialGroup()
                 .addGap(365, 365, 365)
                 .addComponent(jLabel5)
@@ -528,20 +613,22 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         pnlGeneralLayout.setHorizontalGroup(
             pnlGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlGeneralLayout.createSequentialGroup()
-                .addComponent(pnlLateral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlCentral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlGeneralLayout.createSequentialGroup()
+                        .addComponent(pnlLateral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pnlCentral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pnlEncabezado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addComponent(pnlEncabezado, javax.swing.GroupLayout.DEFAULT_SIZE, 1350, Short.MAX_VALUE)
         );
         pnlGeneralLayout.setVerticalGroup(
             pnlGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlGeneralLayout.createSequentialGroup()
                 .addComponent(pnlEncabezado, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlLateral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pnlCentral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(pnlGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(pnlCentral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlLateral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -588,46 +675,30 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUsuariosActionPerformed
 
     private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentasActionPerformed
-    popupVentas.show(btnVentas, 0, btnVentas.getHeight());
-    PnlVentas pnlVentas = new PnlVentas(); 
-
-    // 2. Limpiar y refrescar el contenedor principal
-    
-    pnlCentral.add(pnlVentas, java.awt.BorderLayout.CENTER);
-    pnlCentral.revalidate();
-    pnlCentral.repaint();
-    // Muestra el menú desplegable justo debajo del botón de Ventas
-       
+        popupVentas.show(btnVentas, 0, btnVentas.getHeight());
     }//GEN-LAST:event_btnVentasActionPerformed
 
     private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarSesionActionPerformed
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
+        this, 
+        "¿Está seguro de que desea cerrar sesión?", 
+        "Confirmar Cierre de Sesión", 
+        javax.swing.JOptionPane.YES_NO_OPTION,
+        javax.swing.JOptionPane.QUESTION_MESSAGE
+         );
+
+    if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
         this.dispose();
         new FrmMenuInicio().setVisible(true);
+    }
     }//GEN-LAST:event_btnCerrarSesionActionPerformed
 
-    private void btnPanelPrincipalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPanelPrincipalActionPerformed
-      // Opción A: Abrir de nuevo la ventana principal limpia (o reiniciar la vista)
-    FrmPanelPrincipal nuevoPanel = new FrmPanelPrincipal();
-    nuevoPanel.setVisible(true);
-    this.dispose(); // Cierra la ventana actual
-    }//GEN-LAST:event_btnPanelPrincipalActionPerformed
-
     private void btnAccesoRegistrarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAccesoRegistrarVentaActionPerformed
-        ui.PnlVentas pnlVentas = new ui.PnlVentas();
-        pnlCentral.removeAll();
-        pnlCentral.setLayout(new java.awt.BorderLayout());
-        pnlCentral.add(pnlVentas, java.awt.BorderLayout.CENTER);
-        pnlCentral.revalidate();
-        pnlCentral.repaint();
+        mostrarPanelVentas();
     }//GEN-LAST:event_btnAccesoRegistrarVentaActionPerformed
 
     private void btnAccesoHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAccesoHistorialActionPerformed
-        ui.PnlHistorial pnlHistorial = new ui.PnlHistorial();
-        pnlCentral.removeAll();
-        pnlCentral.setLayout(new java.awt.BorderLayout());
-        pnlCentral.add(pnlHistorial, java.awt.BorderLayout.CENTER);
-        pnlCentral.revalidate();
-        pnlCentral.repaint();
+            abrirPanelHistorial();
     }//GEN-LAST:event_btnAccesoHistorialActionPerformed
 
     private void itemMateriaPrimaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemMateriaPrimaActionPerformed
@@ -648,39 +719,64 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_itemMateriaPrimaActionPerformed
 
     private void itemClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemClientesActionPerformed
-        ui.PnlClientes pnlClientes = new ui.PnlClientes();
+        PnlClientes panel = new PnlClientes();
 
-    // 2. Limpiar y actualizar el panel central (pnlCentral)
-    pnlCentral.removeAll();
-    pnlCentral.setLayout(new java.awt.BorderLayout());
-    pnlCentral.add(pnlClientes, java.awt.BorderLayout.CENTER);
-    pnlCentral.revalidate();
-    pnlCentral.repaint();
+        java.awt.Dimension preferido = panel.getPreferredSize();
+        panel.setPreferredSize(new java.awt.Dimension(
+                preferido.width,
+                Math.max(preferido.height, 900)
+        ));
+
+        javax.swing.JScrollPane scroll =
+                new javax.swing.JScrollPane(panel);
+
+        scroll.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        pnlCentral.removeAll();
+        pnlCentral.setLayout(new java.awt.BorderLayout());
+        pnlCentral.add(scroll, java.awt.BorderLayout.CENTER);
+
+        pnlCentral.revalidate();
+        pnlCentral.repaint();
     }//GEN-LAST:event_itemClientesActionPerformed
 
     private void btnProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProveedoresActionPerformed
         // TODO add your handling code here:
-        ui.PnlProveedores pnlVentas = new ui.PnlProveedores();
+        PnlProveedores panel = new PnlProveedores();
 
-        // 2. Limpiar solo el panel central (pnlCentral)
+        java.awt.Dimension preferido = panel.getPreferredSize();
+        panel.setPreferredSize(new java.awt.Dimension(
+                preferido.width,
+                Math.max(preferido.height, 900)
+        ));
+
+        javax.swing.JScrollPane scroll =
+                new javax.swing.JScrollPane(panel);
+
+        scroll.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
         pnlCentral.removeAll();
         pnlCentral.setLayout(new java.awt.BorderLayout());
-        pnlCentral.add(pnlVentas, java.awt.BorderLayout.CENTER);
+        pnlCentral.add(scroll, java.awt.BorderLayout.CENTER);
+
         pnlCentral.revalidate();
         pnlCentral.repaint();
-        
     }//GEN-LAST:event_btnProveedoresActionPerformed
 
     private void itemVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemVentasActionPerformed
-        // TODO add your handling code here:
-        ui.PnlVentas pnlVentas = new ui.PnlVentas();
-
-        // 2. Limpiar solo el panel central (pnlCentral)
-        pnlCentral.removeAll();
-        pnlCentral.setLayout(new java.awt.BorderLayout());
-        pnlCentral.add(pnlVentas, java.awt.BorderLayout.CENTER);
-        pnlCentral.revalidate();
-        pnlCentral.repaint();
+        mostrarPanelVentas();
     }//GEN-LAST:event_itemVentasActionPerformed
 
     private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
@@ -694,7 +790,6 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
 
         pnlCentral.revalidate();
         pnlCentral.repaint();
-        
     }//GEN-LAST:event_btnReportesActionPerformed
 
     private void btnProduccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProduccionActionPerformed
@@ -712,7 +807,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
 
     private void btnHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorialActionPerformed
         // TODO add your handling code here:
-        PnlHistorial pnlHistorial = new PnlHistorial();
+        PnlHistorialEmpleado pnlHistorial = new PnlHistorialEmpleado();
 
         pnlCentral.removeAll();
         pnlCentral.setLayout(new java.awt.BorderLayout());
@@ -722,6 +817,13 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
         pnlCentral.revalidate();
         pnlCentral.repaint();
     }//GEN-LAST:event_btnHistorialActionPerformed
+
+    private void btnPanelPrincipalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPanelPrincipalActionPerformed
+        // Opción A: Abrir de nuevo la ventana principal limpia (o reiniciar la vista)
+        FrmPanelPrincipal nuevoPanel = new FrmPanelPrincipal();
+        nuevoPanel.setVisible(true);
+        this.dispose(); // Cierra la ventana actual
+    }//GEN-LAST:event_btnPanelPrincipalActionPerformed
 
     /**
      * @param args the command line arguments
@@ -770,6 +872,7 @@ public class FrmPanelPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JLabel lblBienvenida;
     private javax.swing.JLabel lblCompletadasHoy;

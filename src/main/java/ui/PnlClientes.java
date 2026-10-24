@@ -119,7 +119,7 @@ public class PnlClientes extends javax.swing.JPanel {
 
         jLabel9.setText("Nit/CF");
 
-        jLabel10.setText("Telefon");
+        jLabel10.setText("Teléfono");
 
         jLabel11.setText("Dirección");
 
@@ -131,7 +131,7 @@ public class PnlClientes extends javax.swing.JPanel {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("Filtros");
 
-        jLabel7.setText("Código / nombre");
+        jLabel7.setText("Código / Nombre");
 
         btnFiltrar.setText("Filtrar");
         btnFiltrar.addActionListener(this::btnFiltrarActionPerformed);
@@ -145,14 +145,11 @@ public class PnlClientes extends javax.swing.JPanel {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addGap(22, 22, 22)
-                                .addComponent(jLabel4)
-                                .addGap(44, 44, 44))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(19, 19, 19)))
+                            .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addGap(19, 19, 19)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5))
@@ -253,7 +250,11 @@ public class PnlClientes extends javax.swing.JPanel {
         jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         btnEditarCliente.setBackground(new java.awt.Color(204, 204, 204));
+        btnEditarCliente.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEditarCliente.setForeground(new java.awt.Color(255, 255, 255));
         btnEditarCliente.setText("Actualizar");
+        btnEditarCliente.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnEditarCliente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnEditarCliente.addActionListener(this::btnEditarClienteActionPerformed);
 
         jLabel6.setText("Total de Clientes:");
@@ -262,15 +263,34 @@ public class PnlClientes extends javax.swing.JPanel {
         txtTotalClientes.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtTotalClientes.setText("0");
 
-        btnEliminarCliente.setBackground(new java.awt.Color(204, 0, 0));
-        btnEliminarCliente.setForeground(new java.awt.Color(204, 255, 255));
+        btnEliminarCliente.setBackground(new java.awt.Color(153, 0, 0));
+        btnEliminarCliente.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEliminarCliente.setForeground(new java.awt.Color(255, 255, 255));
         btnEliminarCliente.setText("Eliminar Cliente");
+        btnEliminarCliente.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnEliminarCliente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnEliminarCliente.setMaximumSize(new java.awt.Dimension(59, 20));
+        btnEliminarCliente.setMinimumSize(new java.awt.Dimension(59, 20));
         btnEliminarCliente.addActionListener(this::btnEliminarClienteActionPerformed);
 
-        btnAgregarCliente.setText("btnAgregarCliente");
+        btnAgregarCliente.setBackground(new java.awt.Color(0, 102, 0));
+        btnAgregarCliente.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAgregarCliente.setForeground(new java.awt.Color(255, 255, 255));
+        btnAgregarCliente.setText("Agregar Cliente");
+        btnAgregarCliente.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnAgregarCliente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnAgregarCliente.setMaximumSize(new java.awt.Dimension(59, 20));
+        btnAgregarCliente.setMinimumSize(new java.awt.Dimension(59, 20));
         btnAgregarCliente.addActionListener(this::btnAgregarClienteActionPerformed);
 
+        btnLimpiar.setBackground(new java.awt.Color(0, 51, 204));
+        btnLimpiar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnLimpiar.setForeground(new java.awt.Color(204, 255, 255));
         btnLimpiar.setText("Limpiar");
+        btnLimpiar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnLimpiar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnLimpiar.setMaximumSize(new java.awt.Dimension(59, 20));
+        btnLimpiar.setMinimumSize(new java.awt.Dimension(59, 20));
         btnLimpiar.addActionListener(this::btnLimpiarActionPerformed);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -284,8 +304,8 @@ public class PnlClientes extends javax.swing.JPanel {
                 .addComponent(txtTotalClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnEditarCliente)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEditarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnEliminarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
